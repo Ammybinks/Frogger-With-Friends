@@ -7,6 +7,8 @@
 	import flash.utils.getDefinitionByName;
 	
 	public class InputManager {
+		var body:MovieClip;
+		
 		var left:Boolean = false;
 		var right:Boolean = false;
 		var up:Boolean = false;
