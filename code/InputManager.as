@@ -9,6 +9,7 @@
 	public class InputManager {
 		var body:MovieClip;
 		
+		// Boolean values that store the current state of each key
 		var left:Boolean = false;
 		var right:Boolean = false;
 		var up:Boolean = false;
@@ -22,12 +23,14 @@
 		}
 
 		public function Update() {
+			// Traces the keyCode of the most recently held key, for debugging purposes
 			if(currentKey != 0)
 			{
 				trace(currentKey);
 			}
 		}
 		
+		// Store the state of any key that's pressed
 		private function KeyPressed(e:KeyboardEvent) {
 			currentKey = e.keyCode;
 			
@@ -47,6 +50,7 @@
 			}
 		}
 		
+		// Update the state of any key that's no longer being pressed
 		private function KeyReleased(e:KeyboardEvent) {
 			currentKey = 0;
 			
