@@ -9,18 +9,15 @@
 	public class InputManager {
 		var body:MovieClip;
 		
-		var leftHeld:Boolean = false;
-		var rightHeld:Boolean = false;
-		var upHeld:Boolean = false;
-		var downHeld:Boolean = false;
-		
 		// Boolean values that store the current state of each key
-		var leftTapped:Boolean = false;
-		var rightTapped:Boolean = false;
-		var upTapped:Boolean = false;
-		var downTapped:Boolean = false;
-		var undoTapped:Boolean = false;
-		var restartTapped:Boolean = false;
+		var oldLeft:Boolean = false;
+		var left:Boolean = false;
+		var oldRight:Boolean = false;
+		var right:Boolean = false;
+		var oldUp:Boolean = false;
+		var up:Boolean = false;
+		var oldDown:Boolean = false;
+		var down:Boolean = false;
 		
 		var currentKey:int = 0;
 		
@@ -38,73 +35,48 @@
 			}
 			*/
 			
-			leftTapped = false;
-			rightTapped = false;
-			upTapped = false;
-			downTapped = false;
-			undoTapped = false;
-			restartTapped = false;
+			oldLeft = left;
+			oldRight = right;
+			oldUp = up;
+			oldDown = down;
 		}
 		
 		// Store the state of any key that's pressed
 		private function KeyPressed(e:KeyboardEvent):void {
 			currentKey = e.keyCode;
 			
-			trace(currentKey);
 			switch (e.keyCode) {
 				case 65:
-					leftTapped = true;
-					if(!leftHeld)
-					{
-						leftHeld = true;
-					}
+					left = true;
 					break;
 				case 68:
-					rightTapped = true;
-					if(!rightHeld)
-					{
-						rightHeld = true;
-					}
+					right = true;
 					break;
 				case 87:
-					upTapped = true;
-					if(!upHeld)
-					{
-						upHeld = true;
-					}
+					up = true;
 					break;
 				case 83:
-					downTapped = true;
-					if(!downHeld)
-					{
-						downHeld = true;
-					}
-					break;
-				case 90:
-					undoTapped = true;
-					break;
-				case 82:
-					restartTapped = true;
+					down = true;
 					break;
 			}
 		}
 		
-		// upTappeddate the state of any key that's no longer being pressed
+		// Update the state of any key that's no longer being pressed
 		private function KeyReleased(e:KeyboardEvent):void {
 			currentKey = 0;
 			
 			switch (e.keyCode) {
 				case 65:
-					leftHeld = false;
+					left = false;
 					break;
 				case 68:
-					rightHeld = false;
+					right = false;
 					break;
 				case 87:
-					upHeld = false;
+					up = false;
 					break;
 				case 83:
-					downHeld = false;
+					down = false;
 					break;
 			}
 		}

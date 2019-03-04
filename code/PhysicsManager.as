@@ -15,17 +15,17 @@
 		
 		var elasticity:Number = 0.85;
 		var gravity:Number = 1;
-		var friction:Number = 0.99;
+		var friction:Number = 0.8;
 		
 		// Maximum speed the object can move
 		var cap:Number = 25;
 		
-		public function PhysicsManager(pBody:MovieClip) {
+		public function PhysicsManager(pBody:MovieClip):void {
 			// Store a reference to the game object that should be moved
 			body = pBody;
 		}
 
-		public function Update()
+		public function Update():void
 		{
 			// Reduce object speed with current friction value
 			v.x *= friction;
@@ -49,7 +49,7 @@
 		}
 		
 		// Checks if the object has reached the edge of the screen, keeping it within screen bounds at all times
-		private function CheckPosition()
+		private function CheckPosition():void
 		{
 			if(body.x > body.stage.stageWidth)
 			{
@@ -93,7 +93,7 @@
 		}
 		
 		// Called externally to change the velocity of the object
-		public function AddSpeed(pX:Number, pY:Number) {
+		public function AddSpeed(pX:Number, pY:Number):void {
 			var p:Vector3D = new Vector3D(pX, pY, 0);
 			
 			v.x += p.x;
