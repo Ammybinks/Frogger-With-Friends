@@ -29,6 +29,7 @@
 
 		var actorsText:TextField;
 		var turnsText:TextField;
+		var snakeText:TextField;
 		
 		var turnsTaken:int = -1;
 		var gameOver:Boolean = false;
@@ -75,7 +76,7 @@
 			// TODO: Clean up text initialization
 			actorsText = new TextField();
 			actorsText.type = "dynamic";
-			actorsText.text = "Welcome to the Ball Game";
+			actorsText.text = " ";
 			actorsText.border = false;
 			actorsText.selectable = false;
 			actorsText.autoSize = TextFieldAutoSize.LEFT;
@@ -93,17 +94,31 @@
 			
 			turnsText = new TextField();
 			turnsText.type = "dynamic";
-			turnsText.text = "Welcome to the Ball Game";
+			turnsText.text = " ";
 			turnsText.border = false;
 			turnsText.selectable = false;
 			turnsText.autoSize = TextFieldAutoSize.LEFT;
-			turnsText.x = stage.stageWidth - turnsText.width / 2;
+			turnsText.x = stage.stageWidth - 15;
 			turnsText.antiAliasType = AntiAliasType.ADVANCED;
 			turnsText.embedFonts = true;
 
 			turnsText.setTextFormat(format);
 			addChild(turnsText);
 			
+			
+			snakeText = new TextField();
+			snakeText.type = "dynamic";
+			snakeText.text = " ";
+			snakeText.border = false;
+			snakeText.selectable = false;
+			snakeText.autoSize = TextFieldAutoSize.LEFT;
+			snakeText.x = stage.stageWidth - 15;
+			snakeText.y += snakeText.height;
+			snakeText.antiAliasType = AntiAliasType.ADVANCED;
+			snakeText.embedFonts = true;
+
+			snakeText.setTextFormat(format);
+			addChild(snakeText);
 			
 			/* Bring Primary Player Token to front of render queue
 			stage.setChildIndex(nextFrog, stage.numChildren - 1);
@@ -162,29 +177,7 @@
 			stage.addChild(frogFollow);
 
 			nextFrog = frogFollow;
-/*
-			// Blue Frog
-			frogFollow = new BlueFrog(this, new Vector3D(6, 8, 0), nextFrog, playerFrog);
 
-			AddActor(frogFollow);
-			stage.addChild(frogFollow);
-
-			nextFrog = frogFollow;
-
-			// Green Frog
-			frogFollow = new GreenFrog(this, new Vector3D(6, 9, 0), nextFrog, playerFrog);
-
-			AddActor(frogFollow);
-			stage.addChild(frogFollow);
-
-			nextFrog = frogFollow;
-
-			// Red Frog
-			frogFollow = new RedFrog(this, new Vector3D(5, 9, 0), nextFrog, playerFrog);
-
-			AddActor(frogFollow);
-			stage.addChild(frogFollow);
-*/
 			//////
 			// Snakes
 			//////
@@ -196,21 +189,8 @@
 			snake.path[0] = new Vector3D(0, 3);
 			snake.path[1] = new Vector3D(7, 3);
 
-			actors[snake.gridPosition.x][snake.gridPosition.y] = snake;
+			AddActor(snake);
 			stage.addChild(snake);
-
-			snakeCount++;
-			
-			/* Red Snake
-			snake = new RedSnake(this, new Vector3D(9, 4, 0), playerFrog);
-
-			snake.path = new Vector.<Vector3D>(2);
-			snake.path[0] = new Vector3D(0, 4);
-			snake.path[1] = new Vector3D(9, 4);
-
-			actors[snake.gridPosition.x][snake.gridPosition.y] = snake;
-			stage.addChild(snake);
-			*/
 			
 			// Green Snake
 			snake = new GreenSnake(this, new Vector3D(0, 3, 0), playerFrog);
@@ -219,21 +199,8 @@
 			snake.path[0] = new Vector3D(7, 3);
 			snake.path[1] = new Vector3D(0, 3);
 
-			actors[snake.gridPosition.x][snake.gridPosition.y] = snake;
+			AddActor(snake);
 			stage.addChild(snake);
-			
-			snakeCount++;
-			
-			/* Green Snake
-			snake = new GreenSnake(this, new Vector3D(1, 8, 0), playerFrog);
-
-			snake.path = new Vector.<Vector3D>(2);
-			snake.path[0] = new Vector3D(8, 8);
-			snake.path[1] = new Vector3D(1, 8);
-
-			actors[snake.gridPosition.x][snake.gridPosition.y] = snake;
-			stage.addChild(snake);
-			*/
 			
 			// Blue Snake
 			snake = new BlueSnake(this, new Vector3D(1, 4, 0), playerFrog);
@@ -242,21 +209,8 @@
 			snake.path[0] = new Vector3D(7, 4);
 			snake.path[1] = new Vector3D(0, 4);
 
-			actors[snake.gridPosition.x][snake.gridPosition.y] = snake;
+			AddActor(snake);
 			stage.addChild(snake);
-			
-			snakeCount++;
-			
-			/* Blue Snake
-			snake = new BlueSnake(this, new Vector3D(1, 7, 0), playerFrog);
-
-			snake.path = new Vector.<Vector3D>(2);
-			snake.path[0] = new Vector3D(9, 7);
-			snake.path[1] = new Vector3D(1, 7);
-
-			actors[snake.gridPosition.x][snake.gridPosition.y] = snake;
-			stage.addChild(snake);
-			*/
 			
 			playerFrog.addEventListener(UpdateEvent.PLAYER_TURN, CountTurn);
 		}
@@ -319,6 +273,10 @@
 			var textFormat:TextFormat = turnsText.getTextFormat();
 			turnsText.text = turnsTaken.toString();
 			turnsText.setTextFormat(textFormat);
+			
+			textFormat = snakeText.getTextFormat();
+			snakeText.text = snakeCount.toString();
+			snakeText.setTextFormat(textFormat);
 			
 			WriteDebug();
 			
@@ -407,6 +365,11 @@
 			actors[actor.gridPosition.x][actor.gridPosition.y] = actor;
 		}
 
+		public function AddSnake():void
+		{
+			snakeCount++;
+		}
+		
 		// Returns whether the given number is even or not
 		private function CheckEven(pN: int): Boolean
 		{

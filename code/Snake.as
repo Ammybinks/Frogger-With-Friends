@@ -8,6 +8,7 @@
 		var path:Vector.<Vector3D>;
 		var line:int = 0;
 		var pastLines:Vector.<int> = new Vector.<int>();
+		var pastForwards:Vector.<Boolean> = new Vector.<Boolean>();
 		var forwards:Boolean = true;
 		var playerFrog:PlayerFrog;
 		
@@ -20,12 +21,15 @@
 
 			actorType = SNAKE_TYPE;
 			
+			kernel.AddSnake();
+			
 			playerFrog.addEventListener(UpdateEvent.ENEMY_TURN, Update);
 		}
 
 		internal override function Update(e:UpdateEvent):void {
 			pastPositions.push(gridPosition.clone());
 			pastLines.push(line);
+			pastForwards.push(forwards);
 			pastLife.push(visible);
 			
 			if(firstUpdate)
@@ -136,9 +140,18 @@
 		{
 			gridPosition = pastPositions.pop();
 			line = pastLines.pop();
-			visible = pastLife.pop();
+			forwards = pastForwards.pop();
 			
 			kernel.AddActor(this);
+			
+			var tempVisible:Boolean = pastLife.pop();
+			
+			if(tempVisible != visible)
+			{
+				kernel.AddSnake();
+			}
+			
+			visible = tempVisible;
 		}
 		
 		internal override function Restart(e:UndoEvent):void
