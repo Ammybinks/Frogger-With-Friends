@@ -5,11 +5,49 @@
 	
 	
 	// PlayerFrog is the unique class used by the primary player token, containing behaviour to move the frog according to input, rather than any other entities or paths
-	public class PlayerFrog extends Actor {
+	public class PlayerFrog extends Actor implements ICollidable, IPhysicsBody, INext, IEventListener {
 		var physicsBody:PhysicsManager;
+		var collider:CircleCollider;
 		var input:InputManager;
 		
+		var facing:Vector3D = new Vector3D();
+		
+		// Current velocity
+		private var v:Vector3D = new Vector3D(0, 0, 0);
+		public function get V():Vector3D { return v }
+		public function set V(value:Vector3D):void { v = value }
+		// Object mass
+		private var m:Vector3D = new Vector3D(0, 0, 0);
+		public function get M():Vector3D { return m }
+		public function set M(value:Vector3D):void { m = value }
+		// Acceleration
+		private var a:Vector3D = new Vector3D(0, 0, 0);
+		public function get A():Vector3D { return a }
+		public function set A(value:Vector3D):void { a = value }
+		
+		private var elasticity:Number = 0.85;
+		public function get Elasticity():Number { return elasticity }
+		public function set Elasticity(value:Number):void { elasticity = value }
+		
+		private var friction:Number = 0.8;
+		public function get Friction():Number { return friction }
+		public function set Friction(value:Number):void { friction = value }
+		
+		private var radius:Number;
+		public function get Radius():Number { return radius }
+		public function set Radius(value:Number):void { radius = value }
+		
+		private var maxSpeed:Number = 100;
+		public function get MaxSpeed():Number { return maxSpeed }
+		public function set MaxSpeed(value:Number):void { maxSpeed = value }
+		
+		private var minSpeed:Number = 0.1;
+		public function get MinSpeed():Number { return minSpeed }
+		public function set MinSpeed(value:Number):void { minSpeed = value }
+		
 		var speed:Number = 2;
+		
+		var turnSpeed:Number = 15;
 		
 		var pastRotations:Vector.<int> = new Vector.<int>();
 		
@@ -21,10 +59,14 @@
 			actorType = FROG_TYPE;
 			colour = GREEN_COLOUR;
 			weakness = RED_COLOUR;
+
+			radius = width / 2;
 			
 			kernel.addEventListener(UpdateEvent.UPDATE, Update);
 			// Create new manager for physics interactions
 			physicsBody = new PhysicsManager(this);
+			collider = new CircleCollider(this, kernel.stageBounds);
+			kernel.addEventListener(CollisionEvent.CHECK_COLLISION, collider.CheckCollision);
 		}
 
 		internal override function Update(e:UpdateEvent):void {
@@ -148,24 +190,36 @@
 		{
 			physicsBody.Update();
 			
+			// Limits how fast the frog turns by only reducing the relative weighting of each rotation to a certain amount
+			if(Math.abs(facing.x) > 15 || Math.abs(facing.y) > 15)
+			{
+				facing.x *= Friction;
+				facing.y *= Friction;
+			}			
+			
+			// Accelerate the frog in the direction of the key held, adding weight to facing to turn the frog in that direction
 			if(kernel.input.leftHeld)
 			{
-				physicsBody.AddSpeed(-speed, 0);
+				physicsBody.Accelerate(-speed, 0);
+				facing.x -= speed;
 			}
 			if(kernel.input.rightHeld)
 			{
-				physicsBody.AddSpeed(speed, 0);
+				physicsBody.Accelerate(speed, 0);
+				facing.x += speed;
 			}
 			if(kernel.input.upHeld)
 			{
-				physicsBody.AddSpeed(0, -speed);
+				physicsBody.Accelerate(0, -speed);
+				facing.y -= speed;
 			}
 			if(kernel.input.downHeld)
 			{
-				physicsBody.AddSpeed(0, speed);
+				physicsBody.Accelerate(0, speed);
+				facing.y += speed;
 			}
-
-			rotation = Math.atan2(physicsBody.v.y, physicsBody.v.x) * (180 / Math.PI) - 90;
+			
+			rotation = Math.atan2(facing.y, facing.x) * (180 / Math.PI) - 90;
 		}
 		
 		internal override function Restart(e:UndoEvent):void
@@ -183,7 +237,10 @@
 			rotation = pastRotations.pop();
 			visible = pastLife.pop();
 			
-			kernel.AddActor(this);
+			if(visible)
+			{
+				kernel.AddActor(this);
+			}
 		}
 	}
 	

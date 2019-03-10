@@ -3,7 +3,7 @@
 	import flash.geom.Vector3D;
 	
 	public class GreenFrog extends Frog {
-		public function GreenFrog(kernel:Kernel, gridPosition:Vector3D, next:Actor, lead:Actor):void {
+		public function GreenFrog(kernel:Kernel, gridPosition:Vector3D, next:INext, lead:Actor):void {
 			super(kernel, gridPosition, next, lead);
 			
 			colour = GREEN_COLOUR;

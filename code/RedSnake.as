@@ -4,7 +4,7 @@
 	
 	public class RedSnake extends Snake {
 
-		public function RedSnake(kernel:Kernel, gridPosition:Vector3D, playerFrog:PlayerFrog):void {
+		public function RedSnake(kernel:Kernel, gridPosition:Vector3D, playerFrog:IEventListener):void {
 			super(kernel, gridPosition, playerFrog);
 			
 			colour = RED_COLOUR;

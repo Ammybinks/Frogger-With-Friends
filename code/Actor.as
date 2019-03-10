@@ -19,7 +19,9 @@
 		
 		var kernel:Kernel;
 		
-		var gridPosition:Vector3D;
+		internal var gridPosition:Vector3D;
+		public function get GridPosition():Vector3D { return gridPosition }
+		public function set GridPosition(value:Vector3D):void { gridPosition = value }
 		
 		var moving:Boolean;
 		var alive = true;
@@ -45,14 +47,19 @@
 		{
 			
 		}
+		
+		internal function CheckCollision():void
+		{
+			
+		}
 
 		// Locks the frog to its' determined position on the grid
-		internal function UpdatePosition(e:UpdateEvent):void
+		public function UpdatePosition(e:UpdateEvent):void
 		{
 			if(!kernel.solved)
 			{
-				x = (kernel.tileSize * gridPosition.x) + (kernel.tileSize / 2) + kernel.gridUL.x;
-				y = (kernel.tileSize * gridPosition.y) + (kernel.tileSize / 2) + kernel.gridUL.y;
+				x = (kernel.tileSize * gridPosition.x) + (kernel.tileSize / 2) + kernel.stageBounds[0].x;
+				y = (kernel.tileSize * gridPosition.y) + (kernel.tileSize / 2) + kernel.stageBounds[0].y;
 			}
 		}
 		
@@ -90,7 +97,10 @@
 			gridPosition = pastPositions.pop();
 			visible = pastLife.pop();
 			
-			kernel.AddActor(this);
+			if(visible)
+			{
+				kernel.AddActor(this);
+			}
 		}
 	}
 }

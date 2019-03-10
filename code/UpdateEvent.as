@@ -6,6 +6,7 @@
 		public static const UPDATE = "update";
 		public static const PLAYER_TURN = "playerTurn";
 		public static const ENEMY_TURN = "enemyTurn";
+		public static const PUZZLE_SOLVED = "puzzleSolved";
 		
 		public function UpdateEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false) {
 			super(type, bubbles, cancelable);

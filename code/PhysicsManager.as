@@ -2,103 +2,49 @@
 	import flash.display.MovieClip;
 	import flash.geom.Vector3D;
 	
-	// Contains all variables and calculations to determine how an object should respond under various forces, before reflecting those changes onto its attatched body
+	// Contains all variables and calculations to determine how an object should respond under various forces, before reflecting those changes onto its attatched b
 	public class PhysicsManager {
-		var body:MovieClip;
+		var b:IPhysicsBody;
 		
-		var mass:Number = 1;
-		
-		// Current velocity
-		var v:Vector3D = new Vector3D(0, 0, 0);
-		// Object mass
-		var m:Vector3D = new Vector3D(0, 0, 0);
-		
-		var elasticity:Number = 0.85;
-		var gravity:Number = 1;
-		var friction:Number = 0.8;
-		
-		// Maximum speed the object can move
-		var cap:Number = 25;
-		
-		public function PhysicsManager(pBody:MovieClip):void {
+		public function PhysicsManager(b:IPhysicsBody):void {
 			// Store a reference to the game object that should be moved
-			body = pBody;
+			this.b = b;
 		}
 
 		public function Update():void
 		{
-			// Reduce object speed with current friction value
-			v.x *= friction;
-			v.y *= friction;
+			b.V.x += b.A.x;
+			b.V.y += b.A.y;
+			
+			b.V.x *= b.Friction;
+			b.V.y *= b.Friction;
 			
 			// Get current speed the object is moving at
-			var mag:Number = GetMagnitude(v);
+			var mag:Number = b.V.clone().normalize();
 			
-			// Limit speed by reducing the magnitude of v
-			if(mag > cap)
+			// Limit speed by reducing the magnitude of V
+			if(mag > b.MaxSpeed)
 			{
-				v.x = v.x * cap / mag;
-				v.y = v.y * cap / mag;
+				b.V.x = b.V.x * b.MaxSpeed / mag;
+				b.V.y = b.V.y * b.MaxSpeed / mag;
 			}
-			
-			// Reflect changes on main body
-			body.x += v.x;
-			body.y += v.y;
-				
-			CheckPosition();
-		}
-		
-		// Checks if the object has reached the edge of the screen, keeping it within screen bounds at all times
-		private function CheckPosition():void
-		{
-			if(body.x > body.stage.stageWidth)
+			else if (mag < b.MinSpeed)
 			{
-				body.x = body.stage.stageWidth;
-				
-				v.x = HitEdge(v.x);
-			}
-			if(body.x < 0)
-			{
-				body.x = 0;
-
-				v.x = HitEdge(v.x);
+				b.V.x = 0;
+				b.V.y = 0;
 			}
 			
-			if(body.y > body.stage.stageHeight)
-			{
-				body.y = body.stage.stageHeight;
-				
-				v.y = HitEdge(v.y);
-			}
-			if(body.y < 0)
-			{
-				body.y = 0;
-				
-				v.y = HitEdge(v.y);
-			}
-		}
-
-		// Returns the magnitude of the given vector
-		private function GetMagnitude(pV:Vector3D):Number
-		{
-			return Math.sqrt(v.x * v.x + v.y * v.y);
-		}
-		
-		private function HitEdge(pV:Number):Number
-		{
-			pV *= elasticity;
-			pV *= -1;
+			// Reflect changes on main b
+			b.x += b.V.x;
+			b.y += b.V.y;
 			
-			return pV;
+			b.A = new Vector3D();
 		}
 		
 		// Called externally to change the velocity of the object
-		public function AddSpeed(pX:Number, pY:Number):void {
-			var p:Vector3D = new Vector3D(pX, pY, 0);
-			
-			v.x += p.x;
-			v.y += p.y;
-			v.z += p.z;
+		public function Accelerate(pX:Number, pY:Number):void {
+			b.A.x += pX;
+			b.A.y += pY;
 		}
 	}
 	

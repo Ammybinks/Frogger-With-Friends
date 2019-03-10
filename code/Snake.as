@@ -10,11 +10,9 @@
 		var pastLines:Vector.<int> = new Vector.<int>();
 		var pastForwards:Vector.<Boolean> = new Vector.<Boolean>();
 		var forwards:Boolean = true;
-		var playerFrog:PlayerFrog;
 		
-		public function Snake(kernel:Kernel, gridPosition:Vector3D, playerFrog:PlayerFrog) {
+		public function Snake(kernel:Kernel, gridPosition:Vector3D, playerFrog:IEventListener) {
 			super(kernel, gridPosition);
-			this.playerFrog = playerFrog;
 			
 			scaleX = scaleX * 0.8;
 			scaleY = scaleY * 0.8;
@@ -142,8 +140,6 @@
 			line = pastLines.pop();
 			forwards = pastForwards.pop();
 			
-			kernel.AddActor(this);
-			
 			var tempVisible:Boolean = pastLife.pop();
 			
 			if(tempVisible != visible)
@@ -152,6 +148,11 @@
 			}
 			
 			visible = tempVisible;
+			
+			if(visible)
+			{
+				kernel.AddActor(this);
+			}
 		}
 		
 		internal override function Restart(e:UndoEvent):void

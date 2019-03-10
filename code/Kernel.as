@@ -24,8 +24,10 @@
 		// Size of each respective tile, according to the current stageSize
 		var tileSize:Number;
 		// Upper left of the grid, after being centered
-		var gridUL:Vector3D = new Vector3D(0, 0, 0);
+		var stageBounds:Vector.<Vector3D> = new Vector.<Vector3D>(2);
 		var actors:Vector.<Vector.<Actor>>;
+		
+		var collidables:Vector.<ICollidable> = new Vector.<ICollidable>();
 
 		var actorsText:TextField;
 		var turnsText:TextField;
@@ -53,7 +55,8 @@
 
 			// Initialise tile & grid values
 			tileSize = stage.stageHeight / stageSize;
-			gridUL.x = (stage.stageWidth - (tileSize * stageSize)) / 2;
+			stageBounds[0] = new Vector3D((stage.stageWidth - (tileSize * stageSize)) / 2, 0, 0);
+			stageBounds[1] = new Vector3D(stageBounds[0].x + (tileSize * stageSize), stage.stageHeight, 0);
 
 			// Create actors 2D array
 			actors = new Vector.<Vector.<Actor>>(stageSize);
@@ -155,35 +158,36 @@
 			//////
 			
 			//// Player Frog
-			var playerFrog: PlayerFrog = new PlayerFrog(this, new Vector3D(3, 3, 0));
+			var playerFrog:Actor = new PlayerFrog(this, new Vector3D(3, 3, 0));
 
+			collidables.push(playerFrog);
 			AddActor(playerFrog);
 			stage.addChild(playerFrog);
 			
-			var nextFrog: Actor = playerFrog;
+			var nextFrog:Actor = playerFrog;
 
 			// Blue Frog
-			var frogFollow: Frog = new BlueFrog(this, new Vector3D(3, 4, 0), nextFrog, playerFrog);
+			var frogFollow:Actor = new BlueFrog(this, new Vector3D(3, 4, 0), nextFrog as INext, playerFrog);
 
+			collidables.push(frogFollow);
 			AddActor(frogFollow);
 			stage.addChild(frogFollow);
 
 			nextFrog = frogFollow;
 
 			// Red Frog
-			frogFollow = new RedFrog(this, new Vector3D(3, 5, 0), nextFrog, playerFrog);
+			frogFollow = new RedFrog(this, new Vector3D(3, 5, 0), nextFrog as INext, playerFrog);
 
+			collidables.push(frogFollow);
 			AddActor(frogFollow);
 			stage.addChild(frogFollow);
-
-			nextFrog = frogFollow;
 
 			//////
 			// Snakes
 			//////
 			
 			// Red Snake
-			var snake = new RedSnake(this, new Vector3D(7, 3, 0), playerFrog);
+			var snake = new RedSnake(this, new Vector3D(7, 3, 0), playerFrog as IEventListener);
 
 			snake.path = new Vector.<Vector3D>(2);
 			snake.path[0] = new Vector3D(0, 3);
@@ -193,7 +197,7 @@
 			stage.addChild(snake);
 			
 			// Green Snake
-			snake = new GreenSnake(this, new Vector3D(0, 3, 0), playerFrog);
+			snake = new GreenSnake(this, new Vector3D(0, 3, 0), playerFrog as IEventListener);
 
 			snake.path = new Vector.<Vector3D>(2);
 			snake.path[0] = new Vector3D(7, 3);
@@ -203,7 +207,7 @@
 			stage.addChild(snake);
 			
 			// Blue Snake
-			snake = new BlueSnake(this, new Vector3D(1, 4, 0), playerFrog);
+			snake = new BlueSnake(this, new Vector3D(1, 4, 0), playerFrog as IEventListener);
 
 			snake.path = new Vector.<Vector3D>(2);
 			snake.path[0] = new Vector3D(7, 4);
@@ -224,9 +228,26 @@
 					dispatchEvent(new UpdateEvent(UpdateEvent.UPDATE));
 				}
 			}
+
+			if(solved)
+			{
+				if (hasEventListener(CollisionEvent.CHECK_COLLISION))
+				{
+					dispatchEvent(new CollisionEvent(CollisionEvent.CHECK_COLLISION, collidables));
+				}
+			}
 			
 			if((input.undoTapped || input.restartTapped) && turnsTaken > 0)
 			{
+				if(gameOver)
+				{
+					gameOver = false;
+				}
+				if(solved)
+				{
+					solved = false;
+				}
+				
 				// Create actors 2D array
 				actors = new Vector.<Vector.<Actor>>(stageSize);
 
@@ -258,15 +279,6 @@
 					}
 					
 					turnsTaken = 0;
-				}
-				
-				if(gameOver)
-				{
-					gameOver = false;
-				}
-				if(solved)
-				{
-					solved = false;
 				}
 			}
 			
@@ -321,6 +333,11 @@
 				if(snakeCount == 0)
 				{
 					solved = true;
+					
+					if (hasEventListener(UpdateEvent.PUZZLE_SOLVED))
+					{
+						dispatchEvent(new UpdateEvent(UpdateEvent.PUZZLE_SOLVED));
+					}
 				}
 			}
 		}
@@ -389,9 +406,9 @@
 			var tile: MovieClip = new TileGrey();
 
 			tile.x = (pCol * tileSize) + (tileSize / 2);
-			tile.x += gridUL.x;
+			tile.x += stageBounds[0].x;
 			tile.y = (pRow * tileSize) + (tileSize / 2);
-			tile.y += gridUL.y;
+			tile.y += stageBounds[0].y;
 			tile.width = tileSize;
 			tile.height = tileSize;
 
