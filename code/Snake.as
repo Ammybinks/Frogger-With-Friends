@@ -11,75 +11,109 @@
 		var pastForwards:Vector.<Boolean> = new Vector.<Boolean>();
 		var forwards:Boolean = true;
 		
-		public function Snake(kernel:Kernel, gridPosition:Vector3D, playerFrog:IEventListener) {
-			super(kernel, gridPosition);
+		var destination:Vector3D = null;
+		
+		public function Snake(kernel:Kernel, gridPosition:Vector3D, colour:String, playerFrog:IEventListener) {
+			super(kernel, gridPosition, colour);
 			
+			actorType = SNAKE_TYPE;
+
 			scaleX = scaleX * 0.8;
 			scaleY = scaleY * 0.8;
 
-			actorType = SNAKE_TYPE;
-			
 			kernel.AddSnake();
 			
-			playerFrog.addEventListener(UpdateEvent.ENEMY_TURN, Update);
+			kernel.addEventListener(UpdateEvent.ENEMY_TURN, BeginTurn);
+			kernel.addEventListener(UpdateEvent.ENEMY_COLLISIONS, CheckGridCollision);
 		}
 
 		internal override function Update(e:UpdateEvent):void {
+			if(moving && !fighting)
+			{
+				moving = false;
+				kernel.movingCount--;
+			}
+		}
+
+		private function BeginTurn(e:UpdateEvent):void
+		{
+			kernel.addEventListener(UpdateEvent.UPDATE, Update);
+			kernel.addEventListener(UpdateEvent.BEGIN_TURN, EndTurn);
+			
 			pastPositions.push(gridPosition.clone());
 			pastLines.push(line);
 			pastForwards.push(forwards);
 			pastLife.push(visible);
 			
-			if(firstUpdate)
+			if(visible)
 			{
-				firstUpdate = false;
-			}
-			else if(path != null && visible)
-			{
-				var collision:Actor = UpdateGridPosition();
+				kernel.MoveActor(gridPosition, destination);
 				
-				if(collision != null)
-				{
-					Collide(collision);
-					collision.Collide(this);
-					
-					UpdateGridPosition();
-				}
-				//gridPosition = new Vector3D(gridPosition.x - direction.x, gridPosition.y - direction.y, 0);
-
+				gridPosition = destination;
+				
+				destination = null;
+				
+				moving = true;
+				kernel.movingCount++;
 			}
 		}
 
-		private function UpdateGridPosition():Actor
+		private function EndTurn(e:UpdateEvent):void
 		{
-			var direction:Vector3D = new Vector3D(gridPosition.x - path[line].x, gridPosition.y - path[line].y, 0);
-			direction = new Vector3D(direction.x / direction.normalize(), direction.y / direction.normalize(), 0);
-			
-			var tempPosition:Vector3D = new Vector3D(gridPosition.x - direction.x, gridPosition.y - direction.y, 0);
-			var collision:Actor;
-			
-			if((collision = kernel.MoveActor(gridPosition, tempPosition)) == null)
-			{
-				gridPosition = tempPosition;
-				
-				if(gridPosition.x == path[line].x && gridPosition.y == path[line].y)
-				{
-					SwitchLine();
-				}
-			}
-			
-			return collision;
+			kernel.removeEventListener(UpdateEvent.UPDATE, Update);
+			kernel.removeEventListener(UpdateEvent.BEGIN_TURN, EndTurn);
 		}
 		
-		internal override function Collide(collision:Actor):Boolean
+		private function CheckGridCollision(e:UpdateEvent):void
 		{
-			trace(getQualifiedClassName(this) + " has collided with a " + getQualifiedClassName(collision));
+			if(path != null && visible)
+			{
+				var direction:Vector3D = new Vector3D(gridPosition.x - path[line].x, gridPosition.y - path[line].y, 0);
+				direction = new Vector3D(direction.x / direction.normalize(), direction.y / direction.normalize(), 0);
+				
+				var tempPosition:Vector3D = new Vector3D(gridPosition.x - direction.x, gridPosition.y - direction.y, 0);
+				
+				var collision:IGridCollidable = kernel.actors[tempPosition.x][tempPosition.y];
+				
+				if(collision == null)
+				{
+					destination = tempPosition;
+				}
+				else
+				{
+					if(collision.ActorType == Actor.FROG_TYPE)
+					{
+						var fight:Fight = new Fight(this as IFighter, collision as IFighter);
+						
+						destination = tempPosition;
+					}
+					else if(collision.ActorType == Actor.SNAKE_TYPE)
+					{
+						SwitchLine();
+						
+						CheckGridCollision(null);
+					}
+				}
+				
+				if(destination != null)
+				{
+					if(destination.x == path[line].x && destination.y == path[line].y)
+					{
+						SwitchLine();
+					}
+				}
+			}
+		}
+		
+		/*internal override function OnGridCollide(collision:Actor):Boolean
+		{
+			trace((colour.charAt() + actorType.charAt()).toUpperCase() + " has collided with a " + (collision.colour.charAt() + collision.actorType.charAt()).toUpperCase());
 			
 			if(collision.actorType != actorType)
 			{
 				if(collision.colour == weakness || collision.colour == colour)
 				{
-					kernel.RemoveActor(this, gridPosition);
+					kernel.actors[gridPosition.x][gridPosition.y] = null;
 					
 					visible = false;
 				}
@@ -94,7 +128,7 @@
 				
 				return false;
 			}
-		}
+		}*/
 		
 		private function SwitchLine():void
 		{
@@ -151,7 +185,7 @@
 			
 			if(visible)
 			{
-				kernel.AddActor(this);
+				kernel.actors[gridPosition.x][gridPosition.y] = this;
 			}
 		}
 		

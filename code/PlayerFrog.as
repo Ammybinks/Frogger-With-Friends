@@ -5,7 +5,9 @@
 	
 	
 	// PlayerFrog is the unique class used by the primary player token, containing behaviour to move the frog according to input, rather than any other entities or paths
-	public class PlayerFrog extends Actor implements ICollidable, IPhysicsBody, INext, IEventListener {
+	public class PlayerFrog extends Actor implements IPhysicsCollidable, IPhysicsBody, INext, IEventListener {
+		public static var PLAYER_COLLISION:String = "player";
+		
 		var physicsBody:PhysicsManager;
 		var collider:CircleCollider;
 		var input:InputManager;
@@ -37,6 +39,14 @@
 		public function get Radius():Number { return radius }
 		public function set Radius(value:Number):void { radius = value }
 		
+		private var isTrigger:Boolean = false;
+		public function get IsTrigger():Boolean { return isTrigger }
+		public function set IsTrigger(value:Boolean):void { isTrigger = value }
+		
+		private var collisionType:String = "";
+		public function get CollisionType():String { return collisionType }
+		public function set CollisionType(value:String):void { collisionType = value }
+		
 		private var maxSpeed:Number = 100;
 		public function get MaxSpeed():Number { return maxSpeed }
 		public function set MaxSpeed(value:Number):void { maxSpeed = value }
@@ -51,30 +61,53 @@
 		
 		var pastRotations:Vector.<int> = new Vector.<int>();
 		
-		public function PlayerFrog(kernel:Kernel, gridPosition:Vector3D):void {
-			super(kernel, gridPosition);
+		var active:Boolean = true;
+		
+		public function PlayerFrog(kernel:Kernel, gridPosition:Vector3D, colour:String):void {
+			super(kernel, gridPosition, colour);
 			
 			input = kernel.input;
 			
 			actorType = FROG_TYPE;
-			colour = GREEN_COLOUR;
-			weakness = RED_COLOUR;
+			collisionType = PLAYER_COLLISION;
 
-			radius = width / 2;
+			radius = (width / 2) * 0.75;
 			
 			kernel.addEventListener(UpdateEvent.UPDATE, Update);
 			// Create new manager for physics interactions
 			physicsBody = new PhysicsManager(this);
 			collider = new CircleCollider(this, kernel.stageBounds);
+			
+			kernel.AddCollider(this, collider.CheckCollision);
 			kernel.addEventListener(CollisionEvent.CHECK_COLLISION, collider.CheckCollision);
+			kernel.addEventListener(UpdateEvent.BEGIN_TURN, Activate);
 		}
 
+		public function OnPhysicsCollide(direction:Vector3D, depth:Number, isTrigger:Boolean, collisionType:String):void
+		{
+				trace("Player Collide");
+				
+				A.x -= direction.x * depth * Elasticity;
+				A.y -= direction.y * depth * Elasticity;
+		}
+
+		private function Activate(e:UpdateEvent):void
+		{
+			active = true;
+		}
+		
 		internal override function Update(e:UpdateEvent):void {
 			if(firstUpdate)
 			{
 				TakeTurn();
 				
 				firstUpdate = false;
+			}
+			
+			if(moving && !fighting)
+			{
+				moving = false;
+				kernel.movingCount--;
 			}
 			
 			if(kernel.solved)
@@ -89,32 +122,24 @@
 
 		private function TakeTurn()
 		{
-				if(hasEventListener(UpdateEvent.PLAYER_TURN))
-				{
-					dispatchEvent(new UpdateEvent(UpdateEvent.PLAYER_TURN));
-				}
-				if(hasEventListener(UpdateEvent.ENEMY_TURN))
-				{
-					dispatchEvent(new UpdateEvent(UpdateEvent.ENEMY_TURN));
-				}
+			if(hasEventListener(UpdateEvent.PLAYER_TURN))
+			{
+				dispatchEvent(new UpdateEvent(UpdateEvent.PLAYER_TURN));
+			}
 		}
 		
 		private function GridMove()
 		{
-			var tempPosition:Vector3D;
-			
 			if(!visible)
 			{
 				pastRotations.push(rotation);
 				pastPositions.push(gridPosition.clone());
 				pastLife.push(visible);
 			}
-			else if(moving)
+			else if((input.leftTapped || input.rightTapped || input.upTapped || input.downTapped) && active)
 			{
-				moving = false;
-			}
-			else if(input.leftTapped || input.rightTapped || input.upTapped || input.downTapped)
-			{
+				var destination:Vector3D;
+		
 				pastRotations.push(rotation);
 				pastPositions.push(gridPosition.clone());
 				pastLife.push(visible);
@@ -124,7 +149,7 @@
 				{
 					if(gridPosition.x - 1 >= 0)
 					{
-						tempPosition = new Vector3D(gridPosition.x - 1, gridPosition.y, 0);
+						destination = new Vector3D(gridPosition.x - 1, gridPosition.y, 0);
 					}
 					
 					rotation = 90;
@@ -133,7 +158,7 @@
 				{
 					if(gridPosition.x + 1 < kernel.stageSize)
 					{
-						tempPosition = new Vector3D(gridPosition.x + 1, gridPosition.y, 0);
+						destination = new Vector3D(gridPosition.x + 1, gridPosition.y, 0);
 					}
 					
 					rotation = 270;
@@ -142,7 +167,7 @@
 				{
 					if(gridPosition.y - 1 >= 0)
 					{
-						tempPosition = new Vector3D(gridPosition.x, gridPosition.y - 1, 0);
+						destination = new Vector3D(gridPosition.x, gridPosition.y - 1, 0);
 					}
 					
 					rotation = 180;
@@ -151,37 +176,36 @@
 				{
 					if(gridPosition.y + 1 < kernel.stageSize)
 					{
-						tempPosition = new Vector3D(gridPosition.x, gridPosition.y + 1, 0);
+						destination = new Vector3D(gridPosition.x, gridPosition.y + 1, 0);
 					}
 					
 					rotation = 0;
 				}
 			}
 			
-			if(tempPosition != null)
+			if(destination != null)
 			{
-				var collision:Actor
+				var collision:IGridCollidable = kernel.actors[destination.x][destination.y];
 				
-				if((collision = kernel.MoveActor(gridPosition, tempPosition)) == null)
+				if(collision != null)
 				{
-					gridPosition = tempPosition;
-					
-					moving = true;
+					if(collision.ActorType == Actor.SNAKE_TYPE)
+					{
+						var fight:Fight = new Fight(this as IFighter, collision as IFighter);
+					}
 				}
 				else
 				{
-					collision.Collide(this);
-					if(Collide(collision))
-					{
-						kernel.MoveActor(gridPosition, tempPosition);
-						
-						gridPosition = tempPosition;
-						
-						moving = true;
-					}
+					kernel.MoveActor(gridPosition, destination);
 					
+					gridPosition = destination;
 				}
+
+				active = false;
 				
+				moving = true;
+				kernel.movingCount++;
+
 				TakeTurn();
 			}
 		}
@@ -239,7 +263,7 @@
 			
 			if(visible)
 			{
-				kernel.AddActor(this);
+				kernel.actors[gridPosition.x][gridPosition.y] = this;
 			}
 		}
 	}

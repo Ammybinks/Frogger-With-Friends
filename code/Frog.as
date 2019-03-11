@@ -35,6 +35,14 @@
 		public function get Radius():Number { return radius }
 		public function set Radius(value:Number):void { radius = value }
 		
+		private var isTrigger:Boolean = false;
+		public function get IsTrigger():Boolean { return isTrigger }
+		public function set IsTrigger(value:Boolean):void { isTrigger = value }
+		
+		private var collisionType:String = "";
+		public function get CollisionType():String { return collisionType }
+		public function set CollisionType(value:String):void { collisionType = value }
+		
 		private var maxSpeed:Number = 100;
 		public function get MaxSpeed():Number { return maxSpeed }
 		public function set MaxSpeed(value:Number):void { maxSpeed = value }
@@ -46,10 +54,12 @@
 		var speed:Number = 4;
 		
 		// How far away the lead can be before the frog starts moving towards it
-		private var leashRadius = 120;
+		private var leashRadius = 95;
+		// How far away the lead can be before the frog is moving at maximum speed
+		private var maxDistance = 120;
 		
-		public function Frog(kernel:Kernel, gridPosition:Vector3D, next:INext, lead:Actor):void {
-			super(kernel, gridPosition);
+		public function Frog(kernel:Kernel, gridPosition:Vector3D, colour:String, next:INext, lead:Actor):void {
+			super(kernel, gridPosition, colour);
 			
 			this.next = next;
 			oldNextPosition.x = next.GridPosition.x;
@@ -59,17 +69,24 @@
 			
 			actorType = FROG_TYPE;
 
-			radius = width / 2;
+			radius = (width / 2) * 0.75;
 			
 			physicsBody = new PhysicsManager(this);
 			collider = new CircleCollider(this, kernel.stageBounds);
+			
+			kernel.AddCollider(this, collider.CheckCollision);
 			kernel.addEventListener(CollisionEvent.CHECK_COLLISION, collider.CheckCollision);
-			kernel.addEventListener(UpdateEvent.PUZZLE_SOLVED, OnSolved);
-			lead.addEventListener(UpdateEvent.PLAYER_TURN, Update);
+			kernel.addEventListener(StateEvent.PUZZLE_SOLVED, OnSolved);
+			lead.addEventListener(UpdateEvent.PLAYER_TURN, BeginTurn);
 		}
 		
 
 		internal override function Update(e:UpdateEvent):void {
+			if(moving)
+			{
+				moving = false;
+				kernel.movingCount--;
+			}
 			if(kernel.solved)
 			{
 				physicsBody.Update();
@@ -79,43 +96,67 @@
 				// If the collider's support point is inside of the collision's radius
 				if(direction.clone().normalize() >= leashRadius)
 				{	
-					// Calculate the distance needed to move to be outside of a collision
-					var distance:Number = next.Radius - direction.clone().normalize() + radius;
-
+					var percent = (direction.clone().normalize() - leashRadius) / (maxDistance - leashRadius);
+					
 					direction.normalize();
 					
 					// Add force pushing away from the collision at a speed according to how much the two bodies were colliding and the current bodies' elasticity
-					physicsBody.Accelerate(direction.x * speed, direction.y * speed);
+					physicsBody.Accelerate(direction.x * (speed * percent), direction.y * (speed * percent));
+					trace(speed * percent);
 				}
 				
 				
 				// Reflect changes on main b
 				rotation = Math.atan2(direction.y, direction.x) * (180 / Math.PI) - 90;
-				
 			}
 			else
 			{
-				pastPositions.push(gridPosition.clone());
-				pastNextPositions.push(oldNextPosition.clone());
-				pastRotations.push(rotation);
-				pastLife.push(visible);
-					
-				if(oldNextPosition.x != next.GridPosition.x || oldNextPosition.y != next.GridPosition.y)
-				{
-					kernel.MoveActor(gridPosition, oldNextPosition);
-					
-					gridPosition.x = oldNextPosition.x;
-					gridPosition.y = oldNextPosition.y;
-					
-					oldNextPosition.x = next.GridPosition.x;
-					oldNextPosition.y = next.GridPosition.y;
-					
-					UpdateRotation();
-				}
+			}
+		}
+		
+		private function BeginTurn(e:UpdateEvent):void
+		{
+			kernel.addEventListener(UpdateEvent.UPDATE, Update);
+			kernel.addEventListener(UpdateEvent.ENEMY_COLLISIONS, EndTurn);
+			
+			pastPositions.push(gridPosition.clone());
+			pastNextPositions.push(oldNextPosition.clone());
+			pastRotations.push(rotation);
+			pastLife.push(visible);
+				
+			if(oldNextPosition.x != next.GridPosition.x || oldNextPosition.y != next.GridPosition.y)
+			{
+				kernel.MoveActor(gridPosition, oldNextPosition);
+				
+				gridPosition = oldNextPosition;
+				
+				oldNextPosition = next.GridPosition;
+				
+				moving = true;
+				kernel.movingCount++;
+				
+				UpdateRotation();
 			}
 		}
 
-		private function OnSolved(e:UpdateEvent):void
+		private function EndTurn(e:UpdateEvent):void
+		{
+			kernel.removeEventListener(UpdateEvent.UPDATE, Update);
+			kernel.removeEventListener(UpdateEvent.ENEMY_COLLISIONS, EndTurn);
+		}
+		
+		public function OnPhysicsCollide(direction:Vector3D, depth:Number, isTrigger:Boolean, collisionType:String):void
+		{
+			if(!isTrigger)
+			{
+				trace("Frog Collide");
+				
+				A.x -= direction.x * depth * Elasticity;
+				A.y -= direction.y * depth * Elasticity;
+			}
+		}
+		
+		private function OnSolved(e:StateEvent):void
 		{
 			kernel.addEventListener(UpdateEvent.UPDATE, Update);
 		}
@@ -155,7 +196,7 @@
 			
 			if(visible)
 			{
-				kernel.AddActor(this);
+				kernel.actors[gridPosition.x][gridPosition.y] = this;
 			}
 		}
 		

@@ -5,7 +5,7 @@
 	import flash.utils.getQualifiedClassName;
 	
 	// Actor is a generic class that stores an objects position on the game grid, used for any entity that changes position over the course of the game
-	public class Actor extends MovieClip {
+	public class Actor extends GridObject implements IGridCollidable, IFighter {
 		static var FROG_TYPE:String = "frogType";
 		static var SNAKE_TYPE:String = "snakeType";
 		
@@ -13,15 +13,17 @@
 		static var BLUE_COLOUR:String = "blueColour";
 		static var RED_COLOUR:String = "redColour";
 		
-		var actorType:String;
-		var colour:String;
-		var weakness:String;
+		internal var actorType:String;
+		public function get ActorType():String { return actorType }
+		public function set ActorType(value:String):void { actorType = value }
 		
-		var kernel:Kernel;
+		internal var colour:String;
+		public function get Colour():String { return colour }
+		public function set Colour(value:String):void { colour = value }
 		
-		internal var gridPosition:Vector3D;
-		public function get GridPosition():Vector3D { return gridPosition }
-		public function set GridPosition(value:Vector3D):void { gridPosition = value }
+		internal var weakness:String;
+		public function get Weakness():String { return weakness }
+		public function set Weakness(value:String):void { weakness = value }
 		
 		var moving:Boolean;
 		var alive = true;
@@ -31,16 +33,39 @@
 		
 		var firstUpdate:Boolean = true;
 		
-		public function Actor(kernel:Kernel, gridPosition:Vector3D) {
-			this.kernel = kernel;
-			this.gridPosition = gridPosition;
+		var fighting:Boolean = false;
+		
+		public function Actor(kernel:Kernel, gridPosition:Vector3D, colour:String) {
+			super(kernel, gridPosition);
+
+			kernel.actors[gridPosition.x][gridPosition.y] = this;
 			
-			height = kernel.tileSize;
-			width = kernel.tileSize;
+			this.colour = colour;
+			
+			SetColour();
 			
 			kernel.addEventListener(UpdateEvent.UPDATE, UpdatePosition);
 			kernel.addEventListener(UndoEvent.UNDO, Undo);
 			kernel.addEventListener(UndoEvent.RESTART, Restart);
+		}
+		
+		internal function SetColour():void
+		{
+			if(colour == GREEN_COLOUR)
+			{
+				gotoAndStop(1);
+				weakness = RED_COLOUR;
+			}
+			else if(colour == BLUE_COLOUR)
+			{
+				gotoAndStop(2);
+				weakness = GREEN_COLOUR;
+			}
+			else if(colour == RED_COLOUR)
+			{
+				gotoAndStop(3);
+				weakness = BLUE_COLOUR
+			}
 		}
 		
 		internal function Update(e:UpdateEvent):void
@@ -53,25 +78,20 @@
 			
 		}
 
-		// Locks the frog to its' determined position on the grid
-		public function UpdatePosition(e:UpdateEvent):void
+		/*internal function OnGridCollide(collision:Actor):Boolean
 		{
-			if(!kernel.solved)
-			{
-				x = (kernel.tileSize * gridPosition.x) + (kernel.tileSize / 2) + kernel.stageBounds[0].x;
-				y = (kernel.tileSize * gridPosition.y) + (kernel.tileSize / 2) + kernel.stageBounds[0].y;
-			}
-		}
-		
-		internal function Collide(collision:Actor):Boolean
-		{
-			trace(getQualifiedClassName(this) + " has collided with a " + getQualifiedClassName(collision));
+			trace((colour.charAt() + actorType.charAt()).toUpperCase() + " has collided with a " + (collision.colour.charAt() + collision.actorType.charAt()).toUpperCase());
 			
 			if(collision.actorType != actorType)
 			{
 				if(collision.colour == weakness || collision.colour == colour)
 				{
-					kernel.RemoveActor(this, gridPosition);
+					kernel.actors[gridPosition.x][gridPosition.y] = null;
+					
+					if(hasEventListener(StateEvent.ACTOR_DIED))
+					{
+						dispatchEvent(new StateEvent(StateEvent.ACTOR_DIED));
+					}
 					
 					visible = false;
 				}
@@ -82,7 +102,7 @@
 			{
 				return false;
 			}
-		}
+		}*/
 		
 		internal function Restart(e:UndoEvent):void
 		{
@@ -99,8 +119,35 @@
 			
 			if(visible)
 			{
-				kernel.AddActor(this);
+				kernel.actors[gridPosition.x][gridPosition.y] = this;
 			}
+		}
+
+		public function StartFight():void
+		{
+			kernel.actors[gridPosition.x][gridPosition.y] = null;
+			
+			fighting = true;
+		}
+		
+		public function StopFight():void
+		{
+			fighting = false;
+		}
+		
+		public function Win():void
+		{
+			kernel.actors[gridPosition.x][gridPosition.y] = this;
+		}
+		
+		public function Lose():void
+		{
+			if(hasEventListener(StateEvent.ACTOR_DIED))
+			{
+				dispatchEvent(new StateEvent(StateEvent.ACTOR_DIED));
+			}
+			
+			visible = false;
 		}
 	}
 }

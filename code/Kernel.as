@@ -6,13 +6,13 @@
 	import flash.events.MouseEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	import flash.utils.getDefinitionByName;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.AntiAliasType;
 	import flash.text.TextFormat;
 	import flash.geom.Vector3D;
-	import flash.utils.Timer;
 	import flash.utils.getQualifiedClassName;
 
 	public class Kernel extends MovieClip
@@ -25,20 +25,30 @@
 		var tileSize:Number;
 		// Upper left of the grid, after being centered
 		var stageBounds:Vector.<Vector3D> = new Vector.<Vector3D>(2);
-		var actors:Vector.<Vector.<Actor>>;
+		var actors:Vector.<Vector.<IGridCollidable>>;
 		
-		var collidables:Vector.<ICollidable> = new Vector.<ICollidable>();
+		var collidables:Vector.<IPhysicsCollidable> = new Vector.<IPhysicsCollidable>();
 
+		var stars:Vector.<int>;
+		
 		var actorsText:TextField;
 		var turnsText:TextField;
 		var snakeText:TextField;
+		var winText:TextField;
 		
-		var turnsTaken:int = -1;
-		var gameOver:Boolean = false;
+		var turnStep:int = -1;
 		
 		var snakeCount:int = 0;
 		
 		var solved:Boolean = false;
+		var gameOver:Boolean = false;
+		var gameComplete:Boolean = false;
+
+		var goal:Goal;
+		
+		var turnCount:int;
+		var movingCount:int;
+		var previousMovingCount:int;
 		
 		public function Kernel(): void
 		{
@@ -59,12 +69,12 @@
 			stageBounds[1] = new Vector3D(stageBounds[0].x + (tileSize * stageSize), stage.stageHeight, 0);
 
 			// Create actors 2D array
-			actors = new Vector.<Vector.<Actor>>(stageSize);
+			actors = new Vector.<Vector.<IGridCollidable>>(stageSize);
 
 			// Initialise grid of possible actor positions
 			for (var i: int = 0; i < stageSize; i++)
 			{
-				actors[i] = new Vector.<Actor>(stageSize);
+				actors[i] = new Vector.<IGridCollidable>(stageSize);
 
 				for (var o: int = 0; o < stageSize; o++)
 				{
@@ -74,20 +84,26 @@
 
 			CreateGrid();
 
+			goal = new Goal(this, new Vector3D(4, 1, 0));
+
+			stage.addChild(goal);
+			
 			CreateActors();
 
 			// TODO: Clean up text initialization
+			var format:TextFormat = new TextFormat();
+			format.size = 12;
+			format.color = 0x000000;
+			format.font = "Verdana";
+			format.align = "center";
+			
+			
 			actorsText = new TextField();
 			actorsText.type = "dynamic";
 			actorsText.text = " ";
 			actorsText.border = false;
 			actorsText.selectable = false;
 			actorsText.autoSize = TextFieldAutoSize.LEFT;
-			var format:TextFormat = new TextFormat();
-			format.size = 12;
-			format.color = 0x000000;
-			format.font = "Verdana";
-			format.align = "left";
 			actorsText.antiAliasType = AntiAliasType.ADVANCED;
 			actorsText.embedFonts = true;
 
@@ -122,7 +138,28 @@
 
 			snakeText.setTextFormat(format);
 			addChild(snakeText);
+
+			format.size = 32;
 			
+			winText = new TextField();
+			winText.type = "dynamic";
+			winText.text = "Congratulations!\n\n* * *\nYou won in 00 turns.\n\nPress 'R' to restart and try for a better score!";
+			winText.border = false;
+			winText.selectable = false;
+			winText.autoSize = TextFieldAutoSize.LEFT;
+			winText.antiAliasType = AntiAliasType.ADVANCED;
+			winText.embedFonts = true;
+
+			winText.setTextFormat(format);
+			
+			winText.x = (stage.stageWidth / 2) - (winText.width / 2);
+			winText.y = (stage.stageHeight / 2) - (winText.height / 2);
+
+			winText.visible = false;
+			
+			addChild(winText);
+			
+			stars = new <int>[3, 11, -1];
 			/* Bring Primary Player Token to front of render queue
 			stage.setChildIndex(nextFrog, stage.numChildren - 1);
 			stage.setChildIndex(frogFollow, stage.numChildren - 2);*/
@@ -130,11 +167,43 @@
 			removeEventListener(Event.ADDED_TO_STAGE, Loaded);
 		}
 		
-		private function CountTurn(e:UpdateEvent):void
+		public function EndGame():void
 		{
-			turnsTaken++;
+			gameComplete = true;
+			
+			var totalStars:String = "";
+			
+			for(var i:int = 0; i < stars.length; i++)
+			{
+				if(turnCount <= stars[i] || stars[i] == -1)
+				{	
+					for(var o:int = stars.length - i; o > 0; o--)
+					{
+						totalStars = "*  " + totalStars;
+					}
+					
+					break;
+				}
+			}
+			
+			var textFormat:TextFormat = winText.getTextFormat();
+			winText.text = "Congratulations!\n\n" + totalStars + "\nYou won in " + turnCount + " turns.\n\nPress 'R' to restart and try for a better score!";
+			winText.setTextFormat(textFormat);
+			
+			winText.visible = true;
+			
+			if(hasEventListener(GameEvent.END_GAME))
+			{
+				dispatchEvent(new GameEvent(GameEvent.END_GAME));
+			}
 		}
-
+		
+		public function AddCollider(object:IPhysicsCollidable, collider:Function)
+		{
+			collidables.push(object);
+			addEventListener(CollisionEvent.CHECK_COLLISION, collider);
+		}
+		
 		private function CreateGrid(): void
 		{
 			// Create darker tiles on grid, for texture
@@ -158,132 +227,163 @@
 			//////
 			
 			//// Player Frog
-			var playerFrog:Actor = new PlayerFrog(this, new Vector3D(3, 3, 0));
+			var playerFrog:Actor = new PlayerFrog(this, new Vector3D(3, 3, 0), Actor.GREEN_COLOUR);
 
-			collidables.push(playerFrog);
-			AddActor(playerFrog);
+			playerFrog.rotation = 180;
+			
 			stage.addChild(playerFrog);
+			
+			playerFrog.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
+			playerFrog.addEventListener(UpdateEvent.PLAYER_TURN, StartTurn);
 			
 			var nextFrog:Actor = playerFrog;
 
 			// Blue Frog
-			var frogFollow:Actor = new BlueFrog(this, new Vector3D(3, 4, 0), nextFrog as INext, playerFrog);
-
-			collidables.push(frogFollow);
-			AddActor(frogFollow);
+			var frogFollow:Actor = new Frog(this, new Vector3D(3, 4, 0), Actor.BLUE_COLOUR, nextFrog as INext, playerFrog);
+			
 			stage.addChild(frogFollow);
 
+			frogFollow.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
+			
 			nextFrog = frogFollow;
 
 			// Red Frog
-			frogFollow = new RedFrog(this, new Vector3D(3, 5, 0), nextFrog as INext, playerFrog);
+			frogFollow = new Frog(this, new Vector3D(3, 5, 0), Actor.RED_COLOUR, nextFrog as INext, playerFrog);
 
-			collidables.push(frogFollow);
-			AddActor(frogFollow);
 			stage.addChild(frogFollow);
+			
+			frogFollow.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
 
 			//////
 			// Snakes
 			//////
 			
 			// Red Snake
-			var snake = new RedSnake(this, new Vector3D(7, 3, 0), playerFrog as IEventListener);
+			var snake = new Snake(this, new Vector3D(7, 3, 0), Actor.RED_COLOUR, playerFrog as IEventListener);
 
 			snake.path = new Vector.<Vector3D>(2);
 			snake.path[0] = new Vector3D(0, 3);
 			snake.path[1] = new Vector3D(7, 3);
 
-			AddActor(snake);
 			stage.addChild(snake);
 			
+			snake.addEventListener(StateEvent.ACTOR_DIED, SnakeDied);
+			
 			// Green Snake
-			snake = new GreenSnake(this, new Vector3D(0, 3, 0), playerFrog as IEventListener);
+			snake = new Snake(this, new Vector3D(0, 3, 0), Actor.GREEN_COLOUR, playerFrog as IEventListener);
 
 			snake.path = new Vector.<Vector3D>(2);
 			snake.path[0] = new Vector3D(7, 3);
 			snake.path[1] = new Vector3D(0, 3);
 
-			AddActor(snake);
 			stage.addChild(snake);
 			
+			snake.addEventListener(StateEvent.ACTOR_DIED, SnakeDied);
+			
 			// Blue Snake
-			snake = new BlueSnake(this, new Vector3D(1, 4, 0), playerFrog as IEventListener);
+			snake = new Snake(this, new Vector3D(1, 4, 0), Actor.BLUE_COLOUR, playerFrog as IEventListener);
 
 			snake.path = new Vector.<Vector3D>(2);
 			snake.path[0] = new Vector3D(7, 4);
 			snake.path[1] = new Vector3D(0, 4);
 
-			AddActor(snake);
 			stage.addChild(snake);
 			
-			playerFrog.addEventListener(UpdateEvent.PLAYER_TURN, CountTurn);
+			snake.addEventListener(StateEvent.ACTOR_DIED, SnakeDied);
 		}
 
 		public function Update(e: TimerEvent): void
 		{
-			if(!gameOver)
+			if(!gameComplete && !gameOver)
 			{
+				if(solved)
+				{
+					if (hasEventListener(CollisionEvent.CHECK_COLLISION))
+					{
+						dispatchEvent(new CollisionEvent(CollisionEvent.CHECK_COLLISION, collidables));
+					}
+				}
+				
 				if (hasEventListener(UpdateEvent.UPDATE))
 				{
 					dispatchEvent(new UpdateEvent(UpdateEvent.UPDATE));
 				}
 			}
-
-			if(solved)
+			
+			if(turnStep > 0)
 			{
-				if (hasEventListener(CollisionEvent.CHECK_COLLISION))
+				if(movingCount == 0 && movingCount != previousMovingCount || movingCount < 0)
 				{
-					dispatchEvent(new CollisionEvent(CollisionEvent.CHECK_COLLISION, collidables));
+					if(turnStep == 1)
+					{
+						if(hasEventListener(UpdateEvent.ENEMY_COLLISIONS))
+						{
+							dispatchEvent(new UpdateEvent(UpdateEvent.ENEMY_COLLISIONS));
+						}
+						if(hasEventListener(UpdateEvent.ENEMY_TURN))
+						{
+							dispatchEvent(new UpdateEvent(UpdateEvent.ENEMY_TURN));
+						}
+						
+						turnStep++;
+					}
+					else if(turnStep == 2)
+					{
+						if(hasEventListener(UpdateEvent.BEGIN_TURN))
+						{
+							dispatchEvent(new UpdateEvent(UpdateEvent.BEGIN_TURN));
+						}
+						
+						turnCount++;
+						turnStep = 0;
+					}
+					
 				}
+					
+				previousMovingCount = movingCount;
 			}
 			
-			if((input.undoTapped || input.restartTapped) && turnsTaken > 0)
+			if(turnCount > 0)
 			{
-				if(gameOver)
+				if (input.undoTapped && !gameComplete)
 				{
-					gameOver = false;
-				}
-				if(solved)
-				{
-					solved = false;
-				}
-				
-				// Create actors 2D array
-				actors = new Vector.<Vector.<Actor>>(stageSize);
-
-				// Initialise grid of possible actor positions
-				for (var i: int = 0; i < stageSize; i++)
-				{
-					actors[i] = new Vector.<Actor>(stageSize);
-
-					for (var o: int = 0; o < stageSize; o++)
-					{
-						actors[i][o] = null;
-					}
-				}
-
-				if (input.undoTapped)
-				{
+					UndoSetup();
+					
 					if (hasEventListener(UndoEvent.UNDO))
 					{
 						dispatchEvent(new UndoEvent(UndoEvent.UNDO));
 					}
 					
-					turnsTaken--;
+					turnCount--;
 				}
 				else if (input.restartTapped)
 				{
+					UndoSetup();
+					
 					if (hasEventListener(UndoEvent.RESTART))
 					{
 						dispatchEvent(new UndoEvent(UndoEvent.RESTART));
 					}
 					
-					turnsTaken = 0;
+					turnCount = 0;
+					
+					if(gameComplete)
+					{
+						gameComplete = false;
+						
+						if(hasEventListener(GameEvent.START_GAME))
+						{
+							winText.visible = false;
+							
+							dispatchEvent(new GameEvent(GameEvent.START_GAME));
+						}
+					}
+					
 				}
 			}
 			
 			var textFormat:TextFormat = turnsText.getTextFormat();
-			turnsText.text = turnsTaken.toString();
+			turnsText.text = turnCount.toString();
 			turnsText.setTextFormat(textFormat);
 			
 			textFormat = snakeText.getTextFormat();
@@ -294,22 +394,44 @@
 			
 			input.Update();
 		}
-
-		public function MoveActor(oldPosition: Vector3D, newPosition: Vector3D):Actor
+		
+		private function StartTurn(e:UpdateEvent):void
 		{
-			if (actors[oldPosition.x][oldPosition.y] != null && actors[newPosition.x][newPosition.y] == null)
+			turnStep++;
+		}
+		
+		private function UndoSetup():void
+		{
+			if(gameOver)
 			{
-				var actor: Actor = actors[oldPosition.x][oldPosition.y];
-
-				actors[oldPosition.x][oldPosition.y] = null;
-				actors[newPosition.x][newPosition.y] = actor;
-
-				return null;
+				gameOver = false;
 			}
-			else
+			if(solved)
 			{
-				return actors[newPosition.x][newPosition.y];
+				solved = false;
 			}
+			
+			// Create actors 2D array
+			actors = new Vector.<Vector.<IGridCollidable>>(stageSize);
+
+			// Initialise grid of possible actor positions
+			for (var i: int = 0; i < stageSize; i++)
+			{
+				actors[i] = new Vector.<IGridCollidable>(stageSize);
+
+				for (var o: int = 0; o < stageSize; o++)
+				{
+					actors[i][o] = null;
+				}
+			}
+		}
+		
+		public function MoveActor(oldPosition: Vector3D, newPosition: Vector3D):void
+		{
+			var actor:IGridCollidable = actors[oldPosition.x][oldPosition.y];
+
+			actors[oldPosition.x][oldPosition.y] = null;
+			actors[newPosition.x][newPosition.y] = actor;
 		}
 		
 		public function AbsoluteMoveActor(oldPosition:Vector3D, newPosition:Vector3D, actor:Actor):void
@@ -318,26 +440,22 @@
 				actors[newPosition.x][newPosition.y] = actor;
 		}
 		
-		public function RemoveActor(actor:Actor, position:Vector3D):void
+		private function FrogDied(e:StateEvent):void
 		{
-			actors[position.x][position.y] = null;
+			gameOver = true;
+		}
 
-			if(actor.actorType == Actor.FROG_TYPE)
+		private function SnakeDied(e:StateEvent):void
+		{
+			snakeCount--;
+			
+			if(snakeCount == 0)
 			{
-				gameOver = true;
-			}
-			else if(actor.actorType == Actor.SNAKE_TYPE)
-			{
-				snakeCount--;
+				solved = true;
 				
-				if(snakeCount == 0)
+				if (hasEventListener(StateEvent.PUZZLE_SOLVED))
 				{
-					solved = true;
-					
-					if (hasEventListener(UpdateEvent.PUZZLE_SOLVED))
-					{
-						dispatchEvent(new UpdateEvent(UpdateEvent.PUZZLE_SOLVED));
-					}
+					dispatchEvent(new StateEvent(StateEvent.PUZZLE_SOLVED));
 				}
 			}
 		}
@@ -351,19 +469,17 @@
 			{
 				for (var o: int = 0; o < actors.length; o++)
 				{
-					var tempArray:Array = getQualifiedClassName(actors[o][i]).match(/[A-Z]/g);
 					var tempChars:String = "";
 					
-					if(tempArray.length != 0)
+					if(actors[o][i] != null)
 					{
-						for(var p:int = 0; p < tempArray.length; p++)
-						{
-							tempChars += tempArray[p];
-						}
+						//tempChars += actors[o][i].Colour.charAt();
+						tempChars += actors[o][i].ActorType.charAt();
+						tempChars = tempChars.toUpperCase();
 					}
 					else
 					{
-						tempChars = "__";
+						tempChars = "_";
 					}
 					
 					tempString = tempString.concat("[",  tempChars, "]");
@@ -375,11 +491,6 @@
 			var textFormat:TextFormat = actorsText.getTextFormat();
 			actorsText.text = tempString;
 			actorsText.setTextFormat(textFormat);
-		}
-
-		public function AddActor(actor: Actor): void
-		{
-			actors[actor.gridPosition.x][actor.gridPosition.y] = actor;
 		}
 
 		public function AddSnake():void
@@ -403,7 +514,7 @@
 		// Creates a grey tile in a position according to its column and row on the grid
 		private function CreateTile(pCol: int, pRow: int): void
 		{
-			var tile: MovieClip = new TileGrey();
+			var tile: MovieClip = new TileGrey(this);
 
 			tile.x = (pCol * tileSize) + (tileSize / 2);
 			tile.x += stageBounds[0].x;
