@@ -15,11 +15,11 @@
 			height = kernel.tileSize;
 			width = kernel.tileSize;
 			
-			UpdatePosition(null);
+			UpdatePosition();
 		}
 
 		// Locks the frog to its' determined position on the grid
-		internal function UpdatePosition(e:UpdateEvent):void
+		internal function UpdatePosition():void
 		{
 			if(!kernel.solved)
 			{

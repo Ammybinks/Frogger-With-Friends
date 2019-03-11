@@ -35,6 +35,10 @@
 		
 		var fighting:Boolean = false;
 		
+		var gridSpeed:Number = 5;
+		
+		var distanceToMove:Vector3D;
+		
 		public function Actor(kernel:Kernel, gridPosition:Vector3D, colour:String) {
 			super(kernel, gridPosition);
 
@@ -44,7 +48,6 @@
 			
 			SetColour();
 			
-			kernel.addEventListener(UpdateEvent.UPDATE, UpdatePosition);
 			kernel.addEventListener(UndoEvent.UNDO, Undo);
 			kernel.addEventListener(UndoEvent.RESTART, Restart);
 		}
@@ -78,6 +81,33 @@
 			
 		}
 
+		internal function StartMove():void
+		{
+			distanceToMove = new Vector3D(((kernel.tileSize * gridPosition.x) + (kernel.tileSize / 2) + kernel.stageBounds[0].x) - x, ((kernel.tileSize * gridPosition.y) + (kernel.tileSize / 2) + kernel.stageBounds[0].y) - y, 0);
+		}
+
+		internal function Move():void
+		{
+			if(Math.abs(distanceToMove.x) < gridSpeed && Math.abs(distanceToMove.y) < gridSpeed)
+			{
+				distanceToMove = null;
+				
+				UpdatePosition();
+			}
+			else
+			{
+				var tempDistance:Vector3D = distanceToMove.clone();
+				tempDistance.normalize();
+				var movement:Vector3D = new Vector3D(tempDistance.x * gridSpeed, tempDistance.y * gridSpeed, 0);
+				
+				x += movement.x;
+				y += movement.y;
+				
+				distanceToMove.x -= movement.x;
+				distanceToMove.y -= movement.y;
+			}
+		}
+		
 		/*internal function OnGridCollide(collision:Actor):Boolean
 		{
 			trace((colour.charAt() + actorType.charAt()).toUpperCase() + " has collided with a " + (collision.colour.charAt() + collision.actorType.charAt()).toUpperCase());
@@ -121,6 +151,8 @@
 			{
 				kernel.actors[gridPosition.x][gridPosition.y] = this;
 			}
+			
+			UpdatePosition();
 		}
 
 		public function StartFight():void

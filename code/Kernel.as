@@ -162,7 +162,7 @@
 			stars = new <int>[3, 11, -1];
 			/* Bring Primary Player Token to front of render queue
 			stage.setChildIndex(nextFrog, stage.numChildren - 1);
-			stage.setChildIndex(frogFollow, stage.numChildren - 2);*/
+			stage.setChildIndex(partyFrog, stage.numChildren - 2);*/
 
 			removeEventListener(Event.ADDED_TO_STAGE, Loaded);
 		}
@@ -226,7 +226,7 @@
 			// Frogs
 			//////
 			
-			//// Player Frog
+			//// Player PartyFrog
 			var playerFrog:Actor = new PlayerFrog(this, new Vector3D(3, 3, 0), Actor.GREEN_COLOUR);
 
 			playerFrog.rotation = 180;
@@ -238,21 +238,21 @@
 			
 			var nextFrog:Actor = playerFrog;
 
-			// Blue Frog
-			var frogFollow:Actor = new Frog(this, new Vector3D(3, 4, 0), Actor.BLUE_COLOUR, nextFrog as INext, playerFrog);
+			// Blue PartyFrog
+			var partyFrog:Actor = new PartyFrog(this, new Vector3D(3, 4, 0), Actor.BLUE_COLOUR, nextFrog as INext);
 			
-			stage.addChild(frogFollow);
+			stage.addChild(partyFrog);
 
-			frogFollow.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
+			partyFrog.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
 			
-			nextFrog = frogFollow;
+			nextFrog = partyFrog;
 
-			// Red Frog
-			frogFollow = new Frog(this, new Vector3D(3, 5, 0), Actor.RED_COLOUR, nextFrog as INext, playerFrog);
+			// Red PartyFrog
+			partyFrog = new PartyFrog(this, new Vector3D(3, 5, 0), Actor.RED_COLOUR, nextFrog as INext);
 
-			stage.addChild(frogFollow);
+			stage.addChild(partyFrog);
 			
-			frogFollow.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
+			partyFrog.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
 
 			//////
 			// Snakes
@@ -294,22 +294,19 @@
 
 		public function Update(e: TimerEvent): void
 		{
-			if(!gameComplete && !gameOver)
+			if(solved)
 			{
-				if(solved)
+				if (hasEventListener(CollisionEvent.CHECK_COLLISION))
 				{
-					if (hasEventListener(CollisionEvent.CHECK_COLLISION))
-					{
-						dispatchEvent(new CollisionEvent(CollisionEvent.CHECK_COLLISION, collidables));
-					}
-				}
-				
-				if (hasEventListener(UpdateEvent.UPDATE))
-				{
-					dispatchEvent(new UpdateEvent(UpdateEvent.UPDATE));
+					dispatchEvent(new CollisionEvent(CollisionEvent.CHECK_COLLISION, collidables));
 				}
 			}
 			
+			if (hasEventListener(UpdateEvent.UPDATE))
+			{
+				dispatchEvent(new UpdateEvent(UpdateEvent.UPDATE));
+			}
+				
 			if(turnStep > 0)
 			{
 				if(movingCount == 0 && movingCount != previousMovingCount || movingCount < 0)
@@ -342,8 +339,7 @@
 					
 				previousMovingCount = movingCount;
 			}
-			
-			if(turnCount > 0)
+			else if(turnCount > 0)
 			{
 				if (input.undoTapped && !gameComplete)
 				{

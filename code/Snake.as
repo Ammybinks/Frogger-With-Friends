@@ -28,7 +28,11 @@
 		}
 
 		internal override function Update(e:UpdateEvent):void {
-			if(moving && !fighting)
+			if(distanceToMove != null)
+			{
+				Move();
+			}
+			else if(moving && !fighting)
 			{
 				moving = false;
 				kernel.movingCount--;
@@ -52,6 +56,8 @@
 				gridPosition = destination;
 				
 				destination = null;
+
+				StartMove();
 				
 				moving = true;
 				kernel.movingCount++;
@@ -187,6 +193,8 @@
 			{
 				kernel.actors[gridPosition.x][gridPosition.y] = this;
 			}
+			
+			UpdatePosition();
 		}
 		
 		internal override function Restart(e:UndoEvent):void
