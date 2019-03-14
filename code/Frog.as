@@ -9,6 +9,7 @@
 	public class Frog extends Actor implements IPhysicsBody, INext {
 		var physicsBody:PhysicsManager;
 		var collider:CircleCollider;
+		public function get Collider():ICollider { return collider };
 		
 		// Current velocity
 		internal var v:Vector3D = new Vector3D(0, 0, 0);
@@ -68,7 +69,6 @@
 			collider = new CircleCollider(this, kernel.stageBounds);
 			
 			kernel.AddCollider(this, collider.CheckCollision);
-			kernel.addEventListener(CollisionEvent.CHECK_COLLISION, collider.CheckCollision);
 			turnTimer.addEventListener(TimerEvent.TIMER, TakeTurn);
 		}
 		

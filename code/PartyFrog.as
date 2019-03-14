@@ -27,7 +27,7 @@
 			next.addEventListener(UpdateEvent.PLAYER_TURN, BeginTurn);
 		}
 		
-		internal override function Update(e:UpdateEvent):void {
+		public override function Update():void {
 			if(kernel.solved)
 			{
 				physicsBody.Update();

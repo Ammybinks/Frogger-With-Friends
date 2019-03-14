@@ -5,7 +5,7 @@
 	import flash.utils.getQualifiedClassName;
 	
 	// Actor is a generic class that stores an objects position on the game grid, used for any entity that changes position over the course of the game
-	public class Actor extends GridObject implements IGridCollidable, IFighter {
+	public class Actor extends GridObject implements IUpdatable, IGridCollidable, IFighter {
 		static var FROG_TYPE:String = "frogType";
 		static var SNAKE_TYPE:String = "snakeType";
 		
@@ -16,16 +16,16 @@
 		public function get Width():Number { return width; }
 		
 		internal var actorType:String;
-		public function get ActorType():String { return actorType; }
-		public function set ActorType(value:String):void { actorType = value; }
+		public function get ActorType():String { return actorType };
+		public function set ActorType(value:String):void { actorType = value };
 		
 		internal var colour:String;
-		public function get Colour():String { return colour; }
-		public function set Colour(value:String):void { colour = value; }
+		public function get Colour():String { return colour };
+		public function set Colour(value:String):void { colour = value };
 		
 		internal var weakness:String;
-		public function get Weakness():String { return weakness; }
-		public function set Weakness(value:String):void { weakness = value; }
+		public function get Weakness():String { return weakness };
+		public function set Weakness(value:String):void { weakness = value };
 		
 		var moving:Boolean;
 		var alive = true;
@@ -74,7 +74,7 @@
 			}
 		}
 		
-		internal function Update(e:UpdateEvent):void
+		public function Update():void
 		{
 			
 		}

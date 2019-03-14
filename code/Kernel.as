@@ -49,7 +49,9 @@
 		var turnCount:int;
 		var movingCount:int;
 		var previousMovingCount:int;
-
+		
+		var updatables:Vector.<IUpdatable> = new Vector.<IUpdatable>();
+		
 		public function Kernel(): void
 		{
 			addEventListener(Event.ADDED_TO_STAGE, Loaded);
@@ -231,6 +233,7 @@
 
 			playerFrog.rotation = 180;
 			
+			updatables.push(playerFrog as IUpdatable);
 			stage.addChild(playerFrog);
 			
 			playerFrog.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
@@ -241,6 +244,7 @@
 			// Blue PartyFrog
 			var partyFrog:Actor = new PartyFrog(this, new Vector3D(3, 4, 0), Actor.BLUE_COLOUR, nextFrog as INext);
 			
+			updatables.push(partyFrog as IUpdatable);
 			stage.addChild(partyFrog);
 
 			partyFrog.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
@@ -250,6 +254,7 @@
 			// Red PartyFrog
 			partyFrog = new PartyFrog(this, new Vector3D(3, 5, 0), Actor.RED_COLOUR, nextFrog as INext);
 
+			updatables.push(partyFrog as IUpdatable);
 			stage.addChild(partyFrog);
 			
 			partyFrog.addEventListener(StateEvent.ACTOR_DIED, FrogDied);
@@ -265,6 +270,7 @@
 			snake.path[0] = new Vector3D(0, 3);
 			snake.path[1] = new Vector3D(7, 3);
 
+			updatables.push(snake as IUpdatable);
 			stage.addChild(snake);
 			
 			snake.addEventListener(StateEvent.ACTOR_DIED, SnakeDied);
@@ -276,6 +282,7 @@
 			snake.path[0] = new Vector3D(7, 3);
 			snake.path[1] = new Vector3D(0, 3);
 
+			updatables.push(snake as IUpdatable);
 			stage.addChild(snake);
 			
 			snake.addEventListener(StateEvent.ACTOR_DIED, SnakeDied);
@@ -287,6 +294,7 @@
 			snake.path[0] = new Vector3D(7, 4);
 			snake.path[1] = new Vector3D(0, 4);
 
+			updatables.push(snake as IUpdatable);
 			stage.addChild(snake);
 			
 			snake.addEventListener(StateEvent.ACTOR_DIED, SnakeDied);
@@ -296,15 +304,15 @@
 		{
 			if(solved)
 			{
-				if (hasEventListener(CollisionEvent.CHECK_COLLISION))
+				for(var i:int = 0; i < collidables.length; i++)
 				{
-					dispatchEvent(new CollisionEvent(CollisionEvent.CHECK_COLLISION, collidables));
+					collidables[i].Collider.CheckCollision(collidables);
 				}
 			}
 			
-			if (hasEventListener(UpdateEvent.UPDATE))
+			for(i = 0; i < updatables.length; i++)
 			{
-				dispatchEvent(new UpdateEvent(UpdateEvent.UPDATE));
+				updatables[i].Update();
 			}
 				
 			if(turnStep > 0)

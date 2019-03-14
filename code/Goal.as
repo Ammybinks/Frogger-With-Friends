@@ -4,18 +4,19 @@
 	
 	public class Goal extends GridObject implements IPhysicsCollidable {
 		var collider:CircleCollider;
+		public function get Collider():ICollider { return collider };
 		
 		private var radius:Number;
-		public function get Radius():Number { return radius }
-		public function set Radius(value:Number):void { radius = value }
+		public function get Radius():Number { return radius };
+		public function set Radius(value:Number):void { radius = value };
 		
 		private var isTrigger:Boolean = true;
-		public function get IsTrigger():Boolean { return isTrigger }
-		public function set IsTrigger(value:Boolean):void { isTrigger = value }
+		public function get IsTrigger():Boolean { return isTrigger };
+		public function set IsTrigger(value:Boolean):void { isTrigger = value };
 		
 		private var collisionType:String = "";
-		public function get CollisionType():String { return collisionType }
-		public function set CollisionType(value:String):void { collisionType = value }
+		public function get CollisionType():String { return collisionType };
+		public function set CollisionType(value:String):void { collisionType = value };
 		
 		public function Goal(kernel:Kernel, gridPosition:Vector3D) {
 			super(kernel, gridPosition);

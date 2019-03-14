@@ -27,7 +27,7 @@
 			kernel.addEventListener(UpdateEvent.ENEMY_COLLISIONS, CheckGridCollision);
 		}
 
-		internal override function Update(e:UpdateEvent):void {
+		public override function Update():void {
 			if(distanceToMove != null)
 			{
 				Move();

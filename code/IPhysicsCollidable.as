@@ -2,6 +2,8 @@
 	import flash.geom.Vector3D;
 	
 	public interface IPhysicsCollidable {
+		function get Collider():ICollider;
+		
 		function get x():Number;
 		function set x(value:Number):void;
 		function get y():Number;

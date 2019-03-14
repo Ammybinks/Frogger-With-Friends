@@ -34,7 +34,7 @@
 			active = true;
 		}
 		
-		internal override function Update(e:UpdateEvent):void {
+		public override function Update():void {
 			if(firstUpdate)
 			{
 				TakeTurn(null);
