@@ -49,7 +49,7 @@
 		var turnCount:int;
 		var movingCount:int;
 		var previousMovingCount:int;
-		
+
 		public function Kernel(): void
 		{
 			addEventListener(Event.ADDED_TO_STAGE, Loaded);

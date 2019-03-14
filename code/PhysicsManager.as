@@ -51,12 +51,6 @@
 			
 			b.A = new Vector3D();
 		}
-		
-		// Called externally to change the velocity of the object
-		public function Accelerate(pX:Number, pY:Number):void {
-			b.A.x += pX;
-			b.A.y += pY;
-		}
 	}
 	
 }

@@ -89,8 +89,10 @@
 				{
 					if(collision.ActorType == Actor.FROG_TYPE)
 					{
-						var fight:Fight = new Fight(this as IFighter, collision as IFighter);
+						var fight:Fight = new Fight(this as IFighter, collision as IFighter, new Vector3D(collision.x, collision.y, 0), new Vector3D(width, height, 0));
 						
+						stage.addChild(fight);
+					
 						destination = tempPosition;
 					}
 					else if(collision.ActorType == Actor.SNAKE_TYPE)

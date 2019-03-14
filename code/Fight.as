@@ -1,20 +1,27 @@
 ﻿package  {
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
+	import flash.display.MovieClip;
+	import flash.geom.Vector3D;
 	
-	public class Fight {
+	public class Fight extends MovieClip {
 		var fighter1:IFighter;
 		var fighter2:IFighter;
 		
-		var fightTimer: Timer = new Timer(1000 / 2);
+		var fightTimer: Timer = new Timer((1000 / 4) * 3);
 		
-		public function Fight(fighter1:IFighter, fighter2:IFighter) {
+		public function Fight(fighter1:IFighter, fighter2:IFighter, position:Vector3D, size:Vector3D) {
 			this.fighter1 = fighter1;
 			this.fighter2 = fighter2;
 			
+			width = size.x * 2.5;
+			height = size.y * 2.5;
+			x = position.x - width / 2;
+			y = position.y - height / 2;
+			
 			fighter1.StartFight();
 			fighter2.StartFight();
-			
+				
 			fightTimer.addEventListener(TimerEvent.TIMER, Resolve);
 			fightTimer.start();
 		}
@@ -52,6 +59,8 @@
 			fighter2.StopFight();
 			
 			fightTimer.stop();
+			
+			stage.removeChild(this);
 		}
 	}
 }

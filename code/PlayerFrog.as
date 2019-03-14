@@ -128,7 +128,9 @@
 				{
 					if(collision.ActorType == Actor.SNAKE_TYPE)
 					{
-						var fight:Fight = new Fight(this as IFighter, collision as IFighter);
+						var fight:Fight = new Fight(this as IFighter, collision as IFighter, new Vector3D(collision.x, collision.y, 0), new Vector3D(width, height, 0));
+
+						stage.addChild(fight);
 						
 						gridPosition = destination;
 					
@@ -173,22 +175,23 @@
 			// Accelerate the frog in the direction of the key held, adding weight to facing to turn the frog in that direction
 			if(kernel.input.leftHeld)
 			{
-				physicsBody.Accelerate(-physicsSpeed, 0);
+				A.x -= physicsSpeed;
+				
 				facing.x -= physicsSpeed;
 			}
 			if(kernel.input.rightHeld)
 			{
-				physicsBody.Accelerate(physicsSpeed, 0);
+				A.x += physicsSpeed;
 				facing.x += physicsSpeed;
 			}
 			if(kernel.input.upHeld)
 			{
-				physicsBody.Accelerate(0, -physicsSpeed);
+				A.y -= physicsSpeed;
 				facing.y -= physicsSpeed;
 			}
 			if(kernel.input.downHeld)
 			{
-				physicsBody.Accelerate(0, physicsSpeed);
+				A.y += physicsSpeed;
 				facing.y += physicsSpeed;
 			}
 			
@@ -214,6 +217,9 @@
 			{
 				kernel.actors[gridPosition.x][gridPosition.y] = this;
 			}
+			
+			V = new Vector3D(0, 0, 0);
+			A = new Vector3D(0, 0, 0);
 			
 			UpdatePosition();
 		}

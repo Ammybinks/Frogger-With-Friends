@@ -53,9 +53,9 @@
 		
 		internal var physicsSpeed = 2;
 		
-		var pastRotations:Vector.<int> = new Vector.<int>();
+		var turnTimer: Timer = new Timer(1000 / 30);
 		
-		var turnTimer: Timer = new Timer(1000 / 10);
+		var pastRotations:Vector.<int> = new Vector.<int>();
 		
 		public function Frog(kernel:Kernel, gridPosition:Vector3D, colour:String):void {
 			super(kernel, gridPosition, colour);

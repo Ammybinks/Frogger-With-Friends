@@ -12,18 +12,20 @@
 		static var GREEN_COLOUR:String = "greenColour";
 		static var BLUE_COLOUR:String = "blueColour";
 		static var RED_COLOUR:String = "redColour";
+
+		public function get Width():Number { return width; }
 		
 		internal var actorType:String;
-		public function get ActorType():String { return actorType }
-		public function set ActorType(value:String):void { actorType = value }
+		public function get ActorType():String { return actorType; }
+		public function set ActorType(value:String):void { actorType = value; }
 		
 		internal var colour:String;
-		public function get Colour():String { return colour }
-		public function set Colour(value:String):void { colour = value }
+		public function get Colour():String { return colour; }
+		public function set Colour(value:String):void { colour = value; }
 		
 		internal var weakness:String;
-		public function get Weakness():String { return weakness }
-		public function set Weakness(value:String):void { weakness = value }
+		public function get Weakness():String { return weakness; }
+		public function set Weakness(value:String):void { weakness = value; }
 		
 		var moving:Boolean;
 		var alive = true;
@@ -34,8 +36,9 @@
 		var firstUpdate:Boolean = true;
 		
 		var fighting:Boolean = false;
+		var currentFight:Fight;
 		
-		var gridSpeed:Number = 5;
+		var gridSpeed:Number = 10;
 		
 		var distanceToMove:Vector3D;
 		

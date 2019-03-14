@@ -42,7 +42,8 @@
 					direction.normalize();
 					
 					// Add force pushing away from the collision at a speed according to how much the two bodies were colliding and the current bodies' elasticity
-					physicsBody.Accelerate(direction.x * (physicsSpeed * percent), direction.y * (physicsSpeed * percent));
+					A.x += direction.x * (physicsSpeed * percent);
+					A.y += direction.y * (physicsSpeed * percent);
 					trace(physicsSpeed * percent);
 				}
 				
@@ -145,6 +146,9 @@
 			{
 				kernel.actors[gridPosition.x][gridPosition.y] = this;
 			}
+			
+			V = new Vector3D(0, 0, 0);
+			A = new Vector3D(0, 0, 0);
 			
 			UpdatePosition();
 		}
