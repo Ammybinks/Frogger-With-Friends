@@ -13,39 +13,43 @@
 		static var BLUE_COLOUR:String = "blueColour";
 		static var RED_COLOUR:String = "redColour";
 
-		public function get Width():Number { return width; }
-		
+		// The type of the actor, used to determine actions on collisions with other actors
 		internal var actorType:String;
 		public function get ActorType():String { return actorType };
-		public function set ActorType(value:String):void { actorType = value };
 		
+		// The actor's colour, checked when determining whether the actor should win a fight
 		internal var colour:String;
 		public function get Colour():String { return colour };
-		public function set Colour(value:String):void { colour = value };
 		
+		// What colour the actor is weak to, checked when determining whether the actor should win a fight
 		internal var weakness:String;
 		public function get Weakness():String { return weakness };
-		public function set Weakness(value:String):void { weakness = value };
 		
-		var moving:Boolean;
-		var alive = true;
+		// How fast the actor moves along the grid during the puzzle
+		internal var gridSpeed:Number = 10;
 		
-		var pastPositions:Vector.<Vector3D> = new Vector.<Vector3D>();
-		var pastLife:Vector.<Boolean> = new Vector.<Boolean>();
+		// How far the actor needs to move to reach its destination
+		internal var distanceToMove:Vector3D;
 		
-		var firstUpdate:Boolean = true;
+		// If the actor is currently moving
+		internal var moving:Boolean;
 		
-		var fighting:Boolean = false;
-		var currentFight:Fight;
+		// If the actor is currently fighting with another
+		internal var fighting:Boolean;
+		public function get Fighting():Boolean { return fighting; }
+		public function set Fighting(value:Boolean):void { fighting = value; }
 		
-		var gridSpeed:Number = 10;
+		// Lists of all required previous states, referred to when undoing a turn or restarting the puzzle
+		internal var pastPositions:Vector.<Vector3D> = new Vector.<Vector3D>();
+		internal var pastLife:Vector.<Boolean> = new Vector.<Boolean>();
 		
-		var distanceToMove:Vector3D;
+		internal var firstUpdate:Boolean = true;
 		
 		public function Actor(kernel:Kernel, gridPosition:Vector3D, colour:String) {
 			super(kernel, gridPosition);
 
-			kernel.actors[gridPosition.x][gridPosition.y] = this;
+			// Place the actor on the grid
+			kernel.Actors[gridPosition.x][gridPosition.y] = this;
 			
 			this.colour = colour;
 			
@@ -55,6 +59,7 @@
 			kernel.addEventListener(UndoEvent.RESTART, Restart);
 		}
 		
+		// Sets the colour the sprite should use
 		internal function SetColour():void
 		{
 			if(colour == GREEN_COLOUR)
@@ -84,13 +89,15 @@
 			
 		}
 
+		// Begins a movement cycle by calculating how far the actor needs to move to reach their new gridPosition
 		internal function StartMove():void
 		{
-			distanceToMove = new Vector3D(((kernel.tileSize * gridPosition.x) + (kernel.tileSize / 2) + kernel.stageBounds[0].x) - x, ((kernel.tileSize * gridPosition.y) + (kernel.tileSize / 2) + kernel.stageBounds[0].y) - y, 0);
+			distanceToMove = new Vector3D(((kernel.TileSize * gridPosition.x) + (kernel.TileSize / 2) + kernel.StageBounds[0].x) - x, ((kernel.TileSize * gridPosition.y) + (kernel.TileSize / 2) + kernel.StageBounds[0].y) - y, 0);
 		}
 
 		internal function Move():void
 		{
+			// If actor has reached its destination
 			if(Math.abs(distanceToMove.x) < gridSpeed && Math.abs(distanceToMove.y) < gridSpeed)
 			{
 				distanceToMove = null;
@@ -111,32 +118,7 @@
 			}
 		}
 		
-		/*internal function OnGridCollide(collision:Actor):Boolean
-		{
-			trace((colour.charAt() + actorType.charAt()).toUpperCase() + " has collided with a " + (collision.colour.charAt() + collision.actorType.charAt()).toUpperCase());
-			
-			if(collision.actorType != actorType)
-			{
-				if(collision.colour == weakness || collision.colour == colour)
-				{
-					kernel.actors[gridPosition.x][gridPosition.y] = null;
-					
-					if(hasEventListener(StateEvent.ACTOR_DIED))
-					{
-						dispatchEvent(new StateEvent(StateEvent.ACTOR_DIED));
-					}
-					
-					visible = false;
-				}
-				
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}*/
-		
+		// Removes all but the first of each past state before calling Undo()
 		internal function Restart(e:UndoEvent):void
 		{
 			pastPositions = new <Vector3D>[pastPositions[0]];
@@ -145,43 +127,35 @@
 			Undo(e);
 		}
 		
+		// Undoes a single turn, setting the actors state to as it was at that time
 		internal function Undo(e:UndoEvent):void
 		{
 			gridPosition = pastPositions.pop();
 			visible = pastLife.pop();
 			
+			// If the actor is now alive
 			if(visible)
 			{
-				kernel.actors[gridPosition.x][gridPosition.y] = this;
+				kernel.Actors[gridPosition.x][gridPosition.y] = this;
 			}
 			
 			UpdatePosition();
 		}
 
-		public function StartFight():void
+		// Adds the current state to the past turn lists
+		internal function AddPast():void
 		{
-			kernel.actors[gridPosition.x][gridPosition.y] = null;
-			
-			fighting = true;
-		}
-		
-		public function StopFight():void
-		{
-			fighting = false;
+			pastPositions.push(gridPosition.clone());
+			pastLife.push(visible);
 		}
 		
 		public function Win():void
 		{
-			kernel.actors[gridPosition.x][gridPosition.y] = this;
+			kernel.Actors[gridPosition.x][gridPosition.y] = this;
 		}
 		
 		public function Lose():void
 		{
-			if(hasEventListener(StateEvent.ACTOR_DIED))
-			{
-				dispatchEvent(new StateEvent(StateEvent.ACTOR_DIED));
-			}
-			
 			visible = false;
 		}
 	}

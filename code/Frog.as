@@ -7,18 +7,16 @@
 	
 	// PlayerFrog is the unique class used by the primary player token, containing behaviour to move the frog according to input, rather than any other entities or paths
 	public class Frog extends Actor implements IPhysicsBody, INext {
-		var physicsBody:PhysicsManager;
-		var collider:CircleCollider;
+		internal var physicsBody:PhysicsManager;
+		
+		internal var collider:CircleCollider;
 		public function get Collider():ICollider { return collider };
 		
 		// Current velocity
 		internal var v:Vector3D = new Vector3D(0, 0, 0);
 		public function get V():Vector3D { return v }
 		public function set V(value:Vector3D):void { v = value }
-		// Object mass
-		internal var m:Vector3D = new Vector3D(0, 0, 0);
-		public function get M():Vector3D { return m }
-		public function set M(value:Vector3D):void { m = value }
+		
 		// Acceleration
 		internal var a:Vector3D = new Vector3D(0, 0, 0);
 		public function get A():Vector3D { return a }
@@ -26,62 +24,63 @@
 		
 		internal var elasticity:Number = 0.85;
 		public function get Elasticity():Number { return elasticity }
-		public function set Elasticity(value:Number):void { elasticity = value }
 		
 		internal var friction:Number = 0.8;
 		public function get Friction():Number { return friction }
-		public function set Friction(value:Number):void { friction = value }
 		
 		internal var radius:Number;
 		public function get Radius():Number { return radius }
-		public function set Radius(value:Number):void { radius = value }
 		
+		// Trigger objects will collide with others, but won't create pushback force, meaning they can be moved through freely
 		internal var isTrigger:Boolean = false;
 		public function get IsTrigger():Boolean { return isTrigger }
-		public function set IsTrigger(value:Boolean):void { isTrigger = value }
 		
+		// A descriptor of the type of object the object is, used by other objects to determine what specific collision behaviour to enact
 		internal var collisionType:String = "";
 		public function get CollisionType():String { return collisionType }
-		public function set CollisionType(value:String):void { collisionType = value }
+		
+		// How fast the actor accelerates and moves after the puzzle is solved
+		internal var physicsSpeed = 2;
 		
 		internal var maxSpeed:Number = 100;
 		public function get MaxSpeed():Number { return maxSpeed }
-		public function set MaxSpeed(value:Number):void { maxSpeed = value }
 		
 		internal var minSpeed:Number = 0.1;
 		public function get MinSpeed():Number { return minSpeed }
-		public function set MinSpeed(value:Number):void { minSpeed = value }
 		
-		internal var physicsSpeed = 2;
+		// Timer to determine when to instruct the next frog in the sequence to take its turn
+		internal var turnTimer: Timer = new Timer(1000 / 30);
 		
-		var turnTimer: Timer = new Timer(1000 / 30);
-		
-		var pastRotations:Vector.<int> = new Vector.<int>();
+		// List of previous rotations, to ensure the frog always faces the correct direction after an undo command
+		internal var pastRotations:Vector.<int> = new Vector.<int>();
 		
 		public function Frog(kernel:Kernel, gridPosition:Vector3D, colour:String):void {
 			super(kernel, gridPosition, colour);
 			
 			actorType = FROG_TYPE;
 
+			// Set the radius based on the overall size of the frog
 			radius = (width / 2) * 0.75;
 			
 			physicsBody = new PhysicsManager(this);
-			collider = new CircleCollider(this, kernel.stageBounds);
+			collider = new CircleCollider(this, kernel.StageBounds);
 			
-			kernel.AddCollider(this, collider.CheckCollision);
+			kernel.Collidables.push(this);
 			turnTimer.addEventListener(TimerEvent.TIMER, TakeTurn);
 		}
 		
+		// Instructs the next frog in the queue to take its turn
 		internal function TakeTurn(e:TimerEvent)
 		{
-			if(hasEventListener(UpdateEvent.PLAYER_TURN))
+			if(hasEventListener(TurnEvent.PLAYER_TURN))
 			{
-				dispatchEvent(new UpdateEvent(UpdateEvent.PLAYER_TURN));
+				dispatchEvent(new TurnEvent(TurnEvent.PLAYER_TURN));
 			}
 			
 			turnTimer.stop();
 		}
 
+		// Moves the frog outside of the given collision area
 		public function OnPhysicsCollide(direction:Vector3D, depth:Number, isTrigger:Boolean, collisionType:String):void
 		{
 			if(!isTrigger)
@@ -89,6 +88,21 @@
 				A.x -= direction.x * depth * Elasticity;
 				A.y -= direction.y * depth * Elasticity;
 			}
+		}
+		
+		// Adds the current state to the past turn lists
+		internal override function AddPast():void
+		{
+			pastPositions.push(gridPosition.clone());
+			pastRotations.push(rotation);
+			pastLife.push(visible);
+		}
+		
+		public override function Lose():void
+		{
+			kernel.FrogDied();
+			
+			visible = false;
 		}
 	}
 	

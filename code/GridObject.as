@@ -3,6 +3,7 @@
 	import flash.geom.Vector3D;
 	
 	public class GridObject extends LevelObject {
+		// The current position on the puzzle grid
 		internal var gridPosition:Vector3D;
 		public function get GridPosition():Vector3D { return gridPosition }
 		public function set GridPosition(value:Vector3D):void { gridPosition = value }
@@ -12,19 +13,19 @@
 			
 			this.gridPosition = gridPosition;
 			
-			height = kernel.tileSize;
-			width = kernel.tileSize;
+			height = kernel.TileSize;
+			width = kernel.TileSize;
 			
 			UpdatePosition();
 		}
 
-		// Locks the frog to its' determined position on the grid
+		// Locks the frog to its determined position on the grid
 		internal function UpdatePosition():void
 		{
-			if(!kernel.solved)
+			if(!kernel.Solved)
 			{
-				x = (kernel.tileSize * gridPosition.x) + (kernel.tileSize / 2) + kernel.stageBounds[0].x;
-				y = (kernel.tileSize * gridPosition.y) + (kernel.tileSize / 2) + kernel.stageBounds[0].y;
+				x = (kernel.TileSize * gridPosition.x) + (kernel.TileSize / 2) + kernel.StageBounds[0].x;
+				y = (kernel.TileSize * gridPosition.y) + (kernel.TileSize / 2) + kernel.StageBounds[0].y;
 			}
 		}
 	}

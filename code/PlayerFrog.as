@@ -5,31 +5,33 @@
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
-	// PlayerFrog is the unique class used by the primary player token, containing behaviour to move the frog according to input, rather than any other entities or paths
-	public class PlayerFrog extends Frog implements IPhysicsCollidable, IEventListener {
+	public class PlayerFrog extends Frog implements IPhysicsCollidable {
 		public static var PLAYER_COLLISION:String = "player";
 		
 		var input:InputManager;
 		
+		// Stores information to allow the frog to turn smoothly during the physics based section
 		var facing:Vector3D = new Vector3D();
 		
+		// Minimum magnitude of the facing vector, or how much force is required to turn the frog from a standing position
 		var turnSpeed:Number = 15;
 		
+		// If the frog is currently taking inputs from the player
 		var active:Boolean = true;
 		
 		public function PlayerFrog(kernel:Kernel, gridPosition:Vector3D, colour:String):void {
 			super(kernel, gridPosition, colour);
 			
-			input = kernel.input;
+			input = kernel.Input;
 			
 			collisionType = PLAYER_COLLISION;
 
-			kernel.addEventListener(UpdateEvent.UPDATE, Update);
-			
-			kernel.addEventListener(UpdateEvent.BEGIN_TURN, Activate);
+			// Event listener that reactivates the frog when the turn has ended
+			kernel.addEventListener(TurnEvent.BEGIN_TURN, Activate);
 		}
 
-		private function Activate(e:UpdateEvent):void
+		// Returns the frog to an active state
+		private function Activate(e:TurnEvent):void
 		{
 			active = true;
 		}
@@ -37,6 +39,7 @@
 		public override function Update():void {
 			if(firstUpdate)
 			{
+				// Begin a single turn to allow all actors to initialise correctly
 				TakeTurn(null);
 				
 				firstUpdate = false;
@@ -46,15 +49,16 @@
 			{
 				Move();
 			}
+			// If there is no distance to move and the frog was moving and is not fighting
 			else if(moving && !fighting)
 			{
 				moving = false;
-				kernel.movingCount--;
+				kernel.MovingCount--;
 			}
 			
-			if(!kernel.gameComplete && !kernel.gameOver)
+			if(!kernel.GameComplete && !kernel.GameOver)
 			{
-				if(kernel.solved)
+				if(kernel.Solved)
 				{
 					PhysicsMove();
 				}
@@ -65,73 +69,99 @@
 			}
 		}
 
+		// Moves the frog along the grid, beginning a turn each time it moves
 		private function GridMove()
 		{
-			if(!visible)
-			{
-				pastRotations.push(rotation);
-				pastPositions.push(gridPosition.clone());
-				pastLife.push(visible);
-			}
-			else if((input.leftHeld || input.rightHeld || input.upHeld || input.downHeld) && active)
+			// If any key is pressed and the frog is listening for inputs
+			if((input.leftHeld || input.rightHeld || input.upHeld || input.downHeld) && active)
 			{
 				var destination:Vector3D;
-		
-				pastRotations.push(rotation);
-				pastPositions.push(gridPosition.clone());
-				pastLife.push(visible);
+
+				AddPast();
 				
 				// Moves the frog along the grid
 				if(input.leftHeld)
 				{
+					// If new position is inside the stage bounds
 					if(gridPosition.x - 1 >= 0)
 					{
 						destination = new Vector3D(gridPosition.x - 1, gridPosition.y, 0);
+					}
+					else
+					{
+						destination = gridPosition;
 					}
 					
 					rotation = 90;
 				}
 				else if(input.rightHeld)
 				{
-					if(gridPosition.x + 1 < kernel.stageSize)
+					// If new position is inside the stage bounds
+					if(gridPosition.x + 1 < kernel.StageSize)
 					{
 						destination = new Vector3D(gridPosition.x + 1, gridPosition.y, 0);
+					}
+					else
+					{
+						destination = gridPosition;
 					}
 					
 					rotation = 270;
 				}
 				else if(input.upHeld)
 				{
+					// If new position is inside the stage bounds
 					if(gridPosition.y - 1 >= 0)
 					{
 						destination = new Vector3D(gridPosition.x, gridPosition.y - 1, 0);
+					}
+					else
+					{
+						destination = gridPosition;
 					}
 					
 					rotation = 180;
 				}
 				else if(input.downHeld)
 				{
-					if(gridPosition.y + 1 < kernel.stageSize)
+					// If new position is inside the stage bounds
+					if(gridPosition.y + 1 < kernel.StageSize)
 					{
 						destination = new Vector3D(gridPosition.x, gridPosition.y + 1, 0);
+					}
+					else
+					{
+						destination = gridPosition;
 					}
 					
 					rotation = 0;
 				}
-			}
-			
-			if(destination != null)
-			{
-				var collision:IGridCollidable = kernel.actors[destination.x][destination.y];
 				
-				if(collision != null)
+				// Find any object at the projected position
+				var collision:IGridCollidable = kernel.Actors[destination.x][destination.y];
+				
+				// If there is no object in the space, move the frog like normal
+				if(collision == null)
 				{
+					kernel.AbsoluteMoveActor(this, destination);
+					
+					gridPosition = destination;
+					
+					StartMove();
+
+					turnTimer.start();
+				}
+				else
+				{
+					// If the frog has collided with a snake
 					if(collision.ActorType == Actor.SNAKE_TYPE)
 					{
+						// Begin a fight between the frog and the snake
 						var fight:Fight = new Fight(this as IFighter, collision as IFighter, new Vector3D(collision.x, collision.y, 0), new Vector3D(width, height, 0));
 
 						stage.addChild(fight);
 						
+						// Move the frog into the fight
 						gridPosition = destination;
 					
 						StartMove();
@@ -140,27 +170,19 @@
 					}
 					else
 					{
+						// Begin the turn without moving
 						TakeTurn(null);
 					}
-				}
-				else
-				{
-					kernel.MoveActor(gridPosition, destination);
-					
-					gridPosition = destination;
-					
-					StartMove();
-
-					turnTimer.start();
 				}
 
 				active = false;
 				
 				moving = true;
-				kernel.movingCount++;
+				kernel.MovingCount++;
 			}
 		}
 		
+		// Moves the frog by accelerating it in the direction of user input
 		private function PhysicsMove()
 		{
 			physicsBody.Update();
@@ -173,31 +195,32 @@
 			}			
 			
 			// Accelerate the frog in the direction of the key held, adding weight to facing to turn the frog in that direction
-			if(kernel.input.leftHeld)
+			if(input.leftHeld)
 			{
 				A.x -= physicsSpeed;
-				
 				facing.x -= physicsSpeed;
 			}
-			if(kernel.input.rightHeld)
+			if(input.rightHeld)
 			{
 				A.x += physicsSpeed;
 				facing.x += physicsSpeed;
 			}
-			if(kernel.input.upHeld)
+			if(input.upHeld)
 			{
 				A.y -= physicsSpeed;
 				facing.y -= physicsSpeed;
 			}
-			if(kernel.input.downHeld)
+			if(input.downHeld)
 			{
 				A.y += physicsSpeed;
 				facing.y += physicsSpeed;
 			}
 			
+			// Calculate the direction of rotation according to facing
 			rotation = Math.atan2(facing.y, facing.x) * (180 / Math.PI) - 90;
 		}
 		
+		// Removes all but the first of each past state before calling Undo()
 		internal override function Restart(e:UndoEvent):void
 		{
 			pastPositions = new <Vector3D>[pastPositions[0]];
@@ -207,17 +230,20 @@
 			Undo(e);
 		}
 		
+		// Undoes a single turn, setting the actors state to as it was at that time
 		internal override function Undo(e:UndoEvent):void
 		{
 			gridPosition = pastPositions.pop();
 			rotation = pastRotations.pop();
 			visible = pastLife.pop();
 			
+			// If the actor is now alive
 			if(visible)
 			{
-				kernel.actors[gridPosition.x][gridPosition.y] = this;
+				kernel.Actors[gridPosition.x][gridPosition.y] = this;
 			}
 			
+			// Reset the frog's velocity, in case its previous state was in physics movement
 			V = new Vector3D(0, 0, 0);
 			A = new Vector3D(0, 0, 0);
 			
