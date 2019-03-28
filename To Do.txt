@@ -1,0 +1,15 @@
+Implement SceneManager class which creates each scene and calls each method in order (!)
+	Contains a list of all active scenes, iterating over all of them on every update (!)
+	Controls which scene to switch to after the current one is over (!)
+Move basically all functionality from Kernel to new LevelScene class (!)
+	Move everything that initializes the level itself into new LevelScene3 class, to allow for multiple levels (!)
+Implement MenuScene class which houses the main menu (!)
+	Contains multiple options (!)
+		Start game (!)
+		Key configuration, allowing the player to change the keys for a specific action (this will require a global InputManager that's passed to each scene, instead of them creating their own)
+		Exit (!)
+	Controllable with mouse (!) & keyboard
+Implement LevelScene1 & 2 based on the design document (!)
+Remove all references to kernel where unnecessary, use events instead
+Implement interfaces for every reference in the program
+Improve inheritance & code reusability
