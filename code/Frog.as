@@ -54,8 +54,8 @@
 		// List of previous rotations, to ensure the frog always faces the correct direction after an undo command
 		internal var pastRotations:Vector.<int> = new Vector.<int>();
 		
-		public function Frog(kernel:Kernel, gridPosition:Vector3D, colour:String):void {
-			super(kernel, gridPosition, colour);
+		public function Frog(scene:IGameScene, gridPosition:Vector3D, colour:String):void {
+			super(scene, gridPosition, colour);
 			
 			actorType = FROG_TYPE;
 
@@ -63,9 +63,8 @@
 			radius = (width / 2) * 0.75;
 			
 			physicsBody = new PhysicsManager(this);
-			collider = new CircleCollider(this, kernel.StageBounds);
+			collider = new CircleCollider(this, scene.StageBounds);
 			
-			kernel.Collidables.push(this);
 			turnTimer.addEventListener(TimerEvent.TIMER, TakeTurn);
 		}
 		
@@ -100,7 +99,7 @@
 		
 		public override function Lose():void
 		{
-			kernel.FrogDied();
+			scene.FrogDied();
 			
 			visible = false;
 		}

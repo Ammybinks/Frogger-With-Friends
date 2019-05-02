@@ -8,13 +8,13 @@
 		public function get GridPosition():Vector3D { return gridPosition }
 		public function set GridPosition(value:Vector3D):void { gridPosition = value }
 		
-		public function GridObject(kernel:Kernel, gridPosition:Vector3D) {
-			super(kernel);
+		public function GridObject(scene:IGameScene, gridPosition:Vector3D) {
+			super(scene);
 			
 			this.gridPosition = gridPosition;
 			
-			height = kernel.TileSize;
-			width = kernel.TileSize;
+			height = scene.TileSize;
+			width = scene.TileSize;
 			
 			UpdatePosition();
 		}
@@ -22,10 +22,10 @@
 		// Locks the frog to its determined position on the grid
 		internal function UpdatePosition():void
 		{
-			if(!kernel.Solved)
+			if(!scene.Solved)
 			{
-				x = (kernel.TileSize * gridPosition.x) + (kernel.TileSize / 2) + kernel.StageBounds[0].x;
-				y = (kernel.TileSize * gridPosition.y) + (kernel.TileSize / 2) + kernel.StageBounds[0].y;
+				x = (scene.TileSize * gridPosition.x) + (scene.TileSize / 2) + scene.StageBounds[0].x;
+				y = (scene.TileSize * gridPosition.y) + (scene.TileSize / 2) + scene.StageBounds[0].y;
 			}
 		}
 	}

@@ -2,12 +2,12 @@
 	import flash.display.MovieClip;
 	
 	public class LevelObject extends MovieClip {
-		internal var kernel:Kernel;
+		internal var scene:IGameScene;
 
-		public function LevelObject(kernel:Kernel) {
-			this.kernel = kernel;
+		public function LevelObject(scene:IGameScene) {
+			this.scene = scene;
 			
-			kernel.addEventListener(GameEvent.END_GAME, OnEnd);
+			scene.addEventListener(GameEvent.END_GAME, OnEnd);
 		}
 		
 		// When the game starts after ending, add the object back to the stage
@@ -15,7 +15,7 @@
 		{
 			visible = true;
 			
-			kernel.removeEventListener(GameEvent.START_GAME, OnStart);
+			scene.removeEventListener(GameEvent.START_GAME, OnStart);
 		}
 		
 		// When the game ends, temporarily remove the object from the stage
@@ -23,7 +23,7 @@
 		{
 			visible = false;
 			
-			kernel.addEventListener(GameEvent.START_GAME, OnStart);
+			scene.addEventListener(GameEvent.START_GAME, OnStart);
 		}
 	}
 	

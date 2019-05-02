@@ -8,26 +8,26 @@
 	public class PlayerFrog extends Frog implements IPhysicsCollidable {
 		public static var PLAYER_COLLISION:String = "player";
 		
-		var input:InputManager;
+		private var input:InputManager;
 		
 		// Stores information to allow the frog to turn smoothly during the physics based section
-		var facing:Vector3D = new Vector3D();
+		private var facing:Vector3D = new Vector3D();
 		
 		// Minimum magnitude of the facing vector, or how much force is required to turn the frog from a standing position
-		var turnSpeed:Number = 15;
+		private var turnSpeed:Number = 15;
 		
 		// If the frog is currently taking inputs from the player
-		var active:Boolean = true;
+		private var active:Boolean = true;
 		
-		public function PlayerFrog(kernel:Kernel, gridPosition:Vector3D, colour:String):void {
-			super(kernel, gridPosition, colour);
+		public function PlayerFrog(scene:IGameScene, gridPosition:Vector3D, colour:String):void {
+			super(scene, gridPosition, colour);
 			
-			input = kernel.Input;
+			input = scene.Input;
 			
 			collisionType = PLAYER_COLLISION;
 
 			// Event listener that reactivates the frog when the turn has ended
-			kernel.addEventListener(TurnEvent.BEGIN_TURN, Activate);
+			scene.addEventListener(TurnEvent.BEGIN_TURN, Activate);
 		}
 
 		// Returns the frog to an active state
@@ -53,12 +53,12 @@
 			else if(moving && !fighting)
 			{
 				moving = false;
-				kernel.MovingCount--;
+				scene.MovingCount--;
 			}
 			
-			if(!kernel.GameComplete && !kernel.GameOver)
+			if(!scene.GameComplete && !scene.GameOver)
 			{
-				if(kernel.Solved)
+				if(scene.Solved)
 				{
 					PhysicsMove();
 				}
@@ -97,7 +97,7 @@
 				else if(input.rightHeld)
 				{
 					// If new position is inside the stage bounds
-					if(gridPosition.x + 1 < kernel.StageSize)
+					if(gridPosition.x + 1 < scene.StageSize)
 					{
 						destination = new Vector3D(gridPosition.x + 1, gridPosition.y, 0);
 					}
@@ -125,7 +125,7 @@
 				else if(input.downHeld)
 				{
 					// If new position is inside the stage bounds
-					if(gridPosition.y + 1 < kernel.StageSize)
+					if(gridPosition.y + 1 < scene.StageSize)
 					{
 						destination = new Vector3D(gridPosition.x, gridPosition.y + 1, 0);
 					}
@@ -138,12 +138,12 @@
 				}
 				
 				// Find any object at the projected position
-				var collision:IGridCollidable = kernel.Actors[destination.x][destination.y];
+				var collision:IGridCollidable = scene.Actors[destination.x][destination.y];
 				
 				// If there is no object in the space, move the frog like normal
 				if(collision == null)
 				{
-					kernel.AbsoluteMoveActor(this, destination);
+					scene.AbsoluteMoveActor(this, destination);
 					
 					gridPosition = destination;
 					
@@ -178,7 +178,7 @@
 				active = false;
 				
 				moving = true;
-				kernel.MovingCount++;
+				scene.MovingCount++;
 			}
 		}
 		
@@ -240,7 +240,7 @@
 			// If the actor is now alive
 			if(visible)
 			{
-				kernel.Actors[gridPosition.x][gridPosition.y] = this;
+				scene.Actors[gridPosition.x][gridPosition.y] = this;
 			}
 			
 			// Reset the frog's velocity, in case its previous state was in physics movement

@@ -17,8 +17,8 @@
 		private var collisionType:String = "";
 		public function get CollisionType():String { return collisionType }
 		
-		public function Goal(kernel:Kernel, gridPosition:Vector3D) {
-			super(kernel, gridPosition);
+		public function Goal(scene:IGameScene, gridPosition:Vector3D) {
+			super(scene, gridPosition);
 
 			radius = (width / 2) * 0.1;
 			
@@ -27,8 +27,8 @@
 			// Prevent the image from constantly animating between frames
 			stop();
 			
-			kernel.Collidables.push(this);
-			kernel.addEventListener(StateEvent.PUZZLE_SOLVED, OnSolved);
+			scene.Collidables.push(this);
+			scene.addEventListener(StateEvent.PUZZLE_SOLVED, OnSolved);
 		}
 
 		// Ends the game if the collision is a player frog
@@ -36,7 +36,7 @@
 		{
 			if(collisionType == PlayerFrog.PLAYER_COLLISION)
 			{
-				kernel.EndGame();
+				scene.EndGame();
 			}
 		}
 		
@@ -45,8 +45,8 @@
 		{
 			gotoAndStop(2);
 
-			kernel.addEventListener(UndoEvent.UNDO, OnUnsolved);
-			kernel.addEventListener(UndoEvent.RESTART, OnUnsolved);
+			scene.addEventListener(UndoEvent.UNDO, OnUnsolved);
+			scene.addEventListener(UndoEvent.RESTART, OnUnsolved);
 		}
 		
 		// Switches the goal to its inactive state
@@ -54,8 +54,8 @@
 		{
 			gotoAndStop(1);
 
-			kernel.removeEventListener(UndoEvent.UNDO, OnUnsolved);
-			kernel.removeEventListener(UndoEvent.RESTART, OnUnsolved);
+			scene.removeEventListener(UndoEvent.UNDO, OnUnsolved);
+			scene.removeEventListener(UndoEvent.RESTART, OnUnsolved);
 		}
 	}
 	

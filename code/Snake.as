@@ -22,8 +22,8 @@
 		
 		private var destination:Vector3D = null;
 		
-		public function Snake(kernel:Kernel, gridPosition:Vector3D, colour:String) {
-			super(kernel, gridPosition, colour);
+		public function Snake(scene:IGameScene, gridPosition:Vector3D, colour:String) {
+			super(scene, gridPosition, colour);
 			
 			actorType = SNAKE_TYPE;
 
@@ -31,11 +31,11 @@
 			scaleX = scaleX * 0.8;
 			scaleY = scaleY * 0.8;
 
-			kernel.AddSnake();
+			scene.AddSnake();
 			
-			// Event listeners which trigger the snake's turn from kernel
-			kernel.addEventListener(TurnEvent.ENEMY_TURN, BeginTurn);
-			kernel.addEventListener(TurnEvent.ENEMY_COLLISIONS, CheckGridCollision);
+			// Event listeners which trigger the snake's turn from scene
+			scene.addEventListener(TurnEvent.ENEMY_TURN, BeginTurn);
+			scene.addEventListener(TurnEvent.ENEMY_COLLISIONS, CheckGridCollision);
 		}
 
 		public override function Update():void {
@@ -46,7 +46,7 @@
 			else if(moving && !fighting)
 			{
 				moving = false;
-				kernel.MovingCount--;
+				scene.MovingCount--;
 			}
 		}
 
@@ -59,7 +59,7 @@
 			{
 				// Move to the next position in the sequence
 				
-				kernel.AbsoluteMoveActor(this, destination);
+				scene.AbsoluteMoveActor(this, destination);
 				
 				gridPosition = destination;
 				
@@ -68,7 +68,7 @@
 				StartMove();
 				
 				moving = true;
-				kernel.MovingCount++;
+				scene.MovingCount++;
 			}
 		}
 
@@ -85,7 +85,7 @@
 				var tempPosition:Vector3D = new Vector3D(gridPosition.x - direction.x, gridPosition.y - direction.y, 0);
 				
 				// Find any object at the projected position
-				var collision:IGridCollidable = kernel.Actors[tempPosition.x][tempPosition.y];
+				var collision:IGridCollidable = scene.Actors[tempPosition.x][tempPosition.y];
 				
 				// If there is no object in the space, move the snake like normal
 				if(collision == null)
@@ -185,7 +185,7 @@
 			// If the snake is transitioning from being destroyed to being alive
 			if(tempVisible != visible)
 			{
-				kernel.AddSnake();
+				scene.AddSnake();
 			}
 			
 			visible = tempVisible;
@@ -193,7 +193,7 @@
 			// If the actor is now alive
 			if(visible)
 			{
-				kernel.Actors[gridPosition.x][gridPosition.y] = this;
+				scene.Actors[gridPosition.x][gridPosition.y] = this;
 			}
 			
 			UpdatePosition();
@@ -210,7 +210,7 @@
 		
 		public override function Lose():void
 		{
-			kernel.SnakeDied();
+			scene.SnakeDied();
 			
 			visible = false;
 		}

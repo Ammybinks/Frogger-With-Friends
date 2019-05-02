@@ -20,9 +20,9 @@
 		var undoTapped:Boolean = false;
 		var restartTapped:Boolean = false;
 		
-		public function InputManager(kernel:MovieClip):void {
-			kernel.stage.addEventListener(KeyboardEvent.KEY_DOWN, KeyPressed);
-			kernel.stage.addEventListener(KeyboardEvent.KEY_UP, KeyReleased);
+		public function InputManager(stage:Object):void {
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, KeyPressed);
+			stage.addEventListener(KeyboardEvent.KEY_UP, KeyReleased);
 		}
 
 		public function Update():void {

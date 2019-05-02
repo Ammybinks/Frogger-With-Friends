@@ -45,18 +45,18 @@
 		
 		internal var firstUpdate:Boolean = true;
 		
-		public function Actor(kernel:Kernel, gridPosition:Vector3D, colour:String) {
-			super(kernel, gridPosition);
+		public function Actor(scene:IGameScene, gridPosition:Vector3D, colour:String) {
+			super(scene, gridPosition);
 
 			// Place the actor on the grid
-			kernel.Actors[gridPosition.x][gridPosition.y] = this;
+			scene.Actors[gridPosition.x][gridPosition.y] = this;
 			
 			this.colour = colour;
 			
 			SetColour();
 			
-			kernel.addEventListener(UndoEvent.UNDO, Undo);
-			kernel.addEventListener(UndoEvent.RESTART, Restart);
+			scene.addEventListener(UndoEvent.UNDO, Undo);
+			scene.addEventListener(UndoEvent.RESTART, Restart);
 		}
 		
 		// Sets the colour the sprite should use
@@ -92,7 +92,7 @@
 		// Begins a movement cycle by calculating how far the actor needs to move to reach their new gridPosition
 		internal function StartMove():void
 		{
-			distanceToMove = new Vector3D(((kernel.TileSize * gridPosition.x) + (kernel.TileSize / 2) + kernel.StageBounds[0].x) - x, ((kernel.TileSize * gridPosition.y) + (kernel.TileSize / 2) + kernel.StageBounds[0].y) - y, 0);
+			distanceToMove = new Vector3D(((scene.TileSize * gridPosition.x) + (scene.TileSize / 2) + scene.StageBounds[0].x) - x, ((scene.TileSize * gridPosition.y) + (scene.TileSize / 2) + scene.StageBounds[0].y) - y, 0);
 		}
 
 		internal function Move():void
@@ -136,7 +136,7 @@
 			// If the actor is now alive
 			if(visible)
 			{
-				kernel.Actors[gridPosition.x][gridPosition.y] = this;
+				scene.Actors[gridPosition.x][gridPosition.y] = this;
 			}
 			
 			UpdatePosition();
@@ -151,7 +151,7 @@
 		
 		public function Win():void
 		{
-			kernel.Actors[gridPosition.x][gridPosition.y] = this;
+			scene.Actors[gridPosition.x][gridPosition.y] = this;
 		}
 		
 		public function Lose():void

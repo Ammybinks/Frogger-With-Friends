@@ -19,8 +19,8 @@
 		// How far away next can be before the frog is moving at maximum speed
 		private var maxDistance = 120;
 		
-		public function PartyFrog(kernel:Kernel, gridPosition:Vector3D, colour:String, next:INext):void {
-			super(kernel, gridPosition, colour);
+		public function PartyFrog(scene:IGameScene, gridPosition:Vector3D, colour:String, next:INext):void {
+			super(scene, gridPosition, colour);
 			
 			this.next = next;
 			
@@ -34,7 +34,7 @@
 		}
 		
 		public override function Update():void {
-			if(kernel.Solved)
+			if(scene.Solved)
 			{
 				physicsBody.Update();
 
@@ -70,7 +70,7 @@
 					UpdateRotation();
 					
 					moving = false;
-					kernel.MovingCount--;
+					scene.MovingCount--;
 				}
 			}
 		}
@@ -84,14 +84,14 @@
 			if(oldNextPosition.x != next.GridPosition.x || oldNextPosition.y != next.GridPosition.y)
 			{
 				// Move to next's old position
-				kernel.AbsoluteMoveActor(this, oldNextPosition);
+				scene.AbsoluteMoveActor(this, oldNextPosition);
 				
 				gridPosition = oldNextPosition;
 				
 				oldNextPosition = next.GridPosition;
 				
 				moving = true;
-				kernel.MovingCount++;
+				scene.MovingCount++;
 				
 				StartMove();
 				
@@ -136,7 +136,7 @@
 			// If the actor is now alive
 			if(visible)
 			{
-				kernel.Actors[gridPosition.x][gridPosition.y] = this;
+				scene.Actors[gridPosition.x][gridPosition.y] = this;
 			}
 			
 			// Reset the frog's velocity, in case its previous state was in physics movement
