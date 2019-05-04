@@ -35,7 +35,7 @@
 		public function get Collidables():Vector.<IPhysicsCollidable> { return collidables; }
 
 		// Size of the current puzzle, in an N x N grid
-		internal var stageSize:int = 8;
+		internal var stageSize:int;
 		public function get StageSize():int { return stageSize; }
 		
 		// Size of each respective tile, according to the current stageSize
