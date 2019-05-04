@@ -13,6 +13,7 @@
 		var undoHeld:Boolean = false;
 		var restartHeld:Boolean = false;
 		
+		var anyTapped:Boolean = false;
 		var leftTapped:Boolean = false;
 		var rightTapped:Boolean = false;
 		var upTapped:Boolean = false;
@@ -27,6 +28,7 @@
 
 		public function Update():void {
 			// Set all tapped values to false, to ensure they've only been active for a single frame
+			anyTapped = false;
 			leftTapped = false;
 			rightTapped = false;
 			upTapped = false;
@@ -36,6 +38,8 @@
 		}
 		
 		private function KeyPressed(e:KeyboardEvent):void {
+			anyTapped = true;
+			
 			switch (e.keyCode) {
 				case 65:
 					leftTapped = true;
