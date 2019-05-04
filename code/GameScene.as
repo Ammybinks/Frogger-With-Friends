@@ -13,6 +13,9 @@
 	
 	public class GameScene extends MovieClip implements IGameScene {
 		// List of every entity managed by this scene
+		
+		internal var Link:IScene;
+		
 		internal var entities:Vector.<Object> = new Vector.<Object>();
 		public function get Entities():Vector.<Object> { return entities; }
 		public function set Entities(value:Vector.<Object>):void { entities = value; }
@@ -54,7 +57,7 @@
 		internal var actorsText:TextField;
 		internal var turnsText:TextField;
 		internal var snakeText:TextField;
-		internal var winText:TextField;
+		
 
 		// How many actors are currently moving
 		internal var movingCount:int;
@@ -221,8 +224,7 @@
 					{
 						gameComplete = false;
 						
-						winText.visible = false;
-							
+													
 						if(hasEventListener(GameEvent.START_GAME))
 						{
 							dispatchEvent(new GameEvent(GameEvent.START_GAME));
@@ -360,24 +362,7 @@
 
 			format.size = 32;
 			
-			winText = new TextField();
-			winText.type = "dynamic";
-			winText.text = "Congratulations!\n\n* * *\nYou won in 00 turns.\n\nPress 'R' to restart and try for a better score!";
-			winText.border = false;
-			winText.selectable = false;
-			winText.autoSize = TextFieldAutoSize.LEFT;
-			winText.antiAliasType = AntiAliasType.ADVANCED;
-			winText.embedFonts = true;
-
-			winText.setTextFormat(format);
-			
-			winText.x = (stage.stageWidth / 2) - (winText.width / 2);
-			winText.y = (stage.stageHeight / 2) - (winText.height / 2);
-
-			winText.visible = false;
-			
-			entities.push(winText);
-			stage.addChild(winText);
+		
 		}
 		
 		// Removes the given actor from the grid and places them at newPosition on the actors grid
@@ -442,18 +427,14 @@
 				}
 			}
 			
-			var textFormat:TextFormat = winText.getTextFormat();
-			winText.text = "Congratulations!\n\n" + totalStars + "\nYou won in " + turnCount + " turns.\n\nPress 'R' to restart and try for a better score!";
-			winText.setTextFormat(textFormat);
-			
-			winText.visible = true;
-			
+			var Text = "Congratulations!\n\n" + totalStars + "\nYou won in " + turnCount + " turns.\n\nPress any key to continue!";
+								
 			if(hasEventListener(GameEvent.END_GAME))
 			{
 				dispatchEvent(new GameEvent(GameEvent.END_GAME));
 			}
 			
-			next = new StartMenuScene();
+			next = new StarScene(Text, Link, input);
 		}
 		
 		// Sets up actors array in advance of calling undo for all actors, clearing the grid and switching game state values as necessary

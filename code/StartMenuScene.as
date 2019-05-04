@@ -31,15 +31,15 @@
 			var CentreX = stage.width / 2;
 			
 			var StartButton:button = new button(100, CentreX, this, "Start Game");
-			StartButton.SceneLink = new Level3Scene();
+			StartButton.SceneLink = new Level1Scene();
 			entities.push(StartButton);
 			
 			var InstructionButton:button = new button(200, CentreX, this, "Start Game");
-			InstructionButton.SceneLink = scene;
+			InstructionButton.SceneLink = new Level2Scene;
 			entities.push(InstructionButton);
 			
 			var ExitButton:button = new button(300, CentreX, this, "Start Game");
-			ExitButton.SceneLink = scene;
+			ExitButton.SceneLink = new Level3Scene;
 			entities.push(ExitButton);
 		}
 
