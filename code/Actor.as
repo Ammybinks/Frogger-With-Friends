@@ -6,6 +6,7 @@
 	
 	// Actor is a generic class that stores an objects position on the game grid, used for any entity that changes position over the course of the game
 	public class Actor extends GridObject implements IUpdatable, IGridCollidable, IFighter {
+		static var PLAYER_TYPE:String = "playerType";
 		static var FROG_TYPE:String = "frogType";
 		static var SNAKE_TYPE:String = "snakeType";
 		
@@ -14,8 +15,8 @@
 		static var RED_COLOUR:String = "redColour";
 
 		// The type of the actor, used to determine actions on collisions with other actors
-		internal var actorType:String;
-		public function get ActorType():String { return actorType };
+		internal var collisionType:String;
+		public function get CollisionType():String { return collisionType };
 		
 		// The actor's colour, checked when determining whether the actor should win a fight
 		internal var colour:String;

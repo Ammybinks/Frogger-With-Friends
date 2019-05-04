@@ -25,7 +25,7 @@
 		public function Snake(scene:IGameScene, gridPosition:Vector3D, colour:String) {
 			super(scene, gridPosition, colour);
 			
-			actorType = SNAKE_TYPE;
+			collisionType = SNAKE_TYPE;
 
 			// Reduce the default size of the snake to be smaller than the entire size of a grid square
 			scaleX = scaleX * 0.8;
@@ -95,7 +95,7 @@
 				else
 				{
 					// If the snake has collided with a frog
-					if(collision.ActorType == Actor.FROG_TYPE)
+					if(collision.CollisionType == (Actor.FROG_TYPE || Actor.PLAYER_TYPE))
 					{
 						// Begin a fight between the snake and the frog
 						var fight:Fight = new Fight(this as IFighter, collision as IFighter, new Vector3D(collision.x, collision.y, 0), new Vector3D(width, height, 0));
@@ -106,7 +106,7 @@
 						destination = tempPosition;
 					}
 					// If the snake has collided with another snake
-					else if(collision.ActorType == Actor.SNAKE_TYPE)
+					else if(collision.CollisionType == Actor.SNAKE_TYPE)
 					{
 						// Switch the direction the snake is moving in
 						SwitchLine();

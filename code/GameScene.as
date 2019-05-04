@@ -95,16 +95,14 @@
 		{
 			CreateGrid(stage);
 			
-			
 			CreateActorGrid();
-			
 			
 			CreateGoal(stage);
 			
-			
 			CreateActors(stage);
-
 			
+			CreateWalls(stage);
+
 			CreateText(stage);
 			
 			for (var i:int = 0; i < entities.length; i++)
@@ -295,15 +293,20 @@
 			}
 		}
 
-		// Initialises each moving actor and places them on the stage
-		internal function CreateActors(stage:Object): void
-		{
-		}
-
 		internal function CreateGoal(stage:Object):void
 		{
 		}
 		
+		// Initialises each moving actor and places them on the stage
+		internal function CreateActors(stage:Object): void
+		{
+		}
+		
+		internal function CreateWalls(stage:Object): void
+		{
+
+		}
+
 		// Initialises all TextFields needed to print information to the screen
 		internal function CreateText(stage:Object):void
 		{
@@ -485,7 +488,7 @@
 					if(actors[o][i] != null)
 					{
 						//tempChars += actors[o][i].Colour.charAt();
-						tempChars += actors[o][i].ActorType.charAt();
+						tempChars += actors[o][i].CollisionType.charAt();
 						tempChars = tempChars.toUpperCase();
 					}
 					else

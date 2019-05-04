@@ -26,6 +26,13 @@
 			stars = new <int>[3, 11, -1];
 		}
 
+		internal override function CreateGoal(stage:Object):void
+		{
+			goal = new Goal(this, new Vector3D(4, 1, 0));
+
+			stage.addChild(goal);
+		}
+		
 		// Initialises each moving actor and places them on the stage
 		internal override function CreateActors(stage:Object): void
 		{
@@ -94,14 +101,6 @@
 			entities.push(snake);
 			stage.addChild(snake);
 		}
-
-		internal override function CreateGoal(stage:Object):void
-		{
-			goal = new Goal(this, new Vector3D(4, 1, 0));
-
-			stage.addChild(goal);
-		}
-		
 	}
 	
 }

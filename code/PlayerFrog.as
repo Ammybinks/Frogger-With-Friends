@@ -6,8 +6,6 @@
 	import flash.utils.Timer;
 	
 	public class PlayerFrog extends Frog implements IPhysicsCollidable {
-		public static var PLAYER_COLLISION:String = "player";
-		
 		private var input:InputManager;
 		
 		// Stores information to allow the frog to turn smoothly during the physics based section
@@ -24,7 +22,7 @@
 			
 			input = scene.Input;
 			
-			collisionType = PLAYER_COLLISION;
+			collisionType = Actor.PLAYER_TYPE;
 
 			// Event listener that reactivates the frog when the turn has ended
 			scene.addEventListener(TurnEvent.BEGIN_TURN, Activate);
@@ -154,7 +152,7 @@
 				else
 				{
 					// If the frog has collided with a snake
-					if(collision.ActorType == Actor.SNAKE_TYPE)
+					if(collision.CollisionType == Actor.SNAKE_TYPE)
 					{
 						// Begin a fight between the frog and the snake
 						var fight:Fight = new Fight(this as IFighter, collision as IFighter, new Vector3D(collision.x, collision.y, 0), new Vector3D(width, height, 0));

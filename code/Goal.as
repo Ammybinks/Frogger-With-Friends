@@ -34,7 +34,7 @@
 		// Ends the game if the collision is a player frog
 		public function OnPhysicsCollide(direction:Vector3D, depth:Number, isTrigger:Boolean, collisionType:String):void
 		{
-			if(collisionType == PlayerFrog.PLAYER_COLLISION)
+			if(collisionType == Actor.PLAYER_TYPE)
 			{
 				scene.EndGame();
 			}

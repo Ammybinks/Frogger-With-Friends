@@ -28,19 +28,18 @@
 		{
 			var scene = new GameScene();
 			
-			var CentreX = stage.width / 2;
+			var CentreX = stage.stageWidth / 2;
 			
-			var StartButton:button = new button(100, CentreX, this, "Start Game");
+			var StartButton:Button = new Button(100, CentreX, this, "Start Game");
 			StartButton.SceneLink = new Level3Scene();
 			entities.push(StartButton);
 			
-			var InstructionButton:button = new button(200, CentreX, this, "Start Game");
+			var InstructionButton:Button = new Button(200, CentreX, this, "Start Game");
 			InstructionButton.SceneLink = scene;
 			entities.push(InstructionButton);
 			
-			var ExitButton:button = new button(300, CentreX, this, "Start Game");
-			ExitButton.SceneLink = scene;
-			entities.push(ExitButton);
+			var QuitButton:ExitButton = new ExitButton(300, CentreX, this, "Start Game");
+			entities.push(QuitButton);
 		}
 
 		public function LoadContent(stage:Object):void // Load content Method

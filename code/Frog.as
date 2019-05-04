@@ -35,10 +35,6 @@
 		internal var isTrigger:Boolean = false;
 		public function get IsTrigger():Boolean { return isTrigger }
 		
-		// A descriptor of the type of object the object is, used by other objects to determine what specific collision behaviour to enact
-		internal var collisionType:String = "";
-		public function get CollisionType():String { return collisionType }
-		
 		// How fast the actor accelerates and moves after the puzzle is solved
 		internal var physicsSpeed = 2;
 		
@@ -57,7 +53,7 @@
 		public function Frog(scene:IGameScene, gridPosition:Vector3D, colour:String):void {
 			super(scene, gridPosition, colour);
 			
-			actorType = FROG_TYPE;
+			collisionType = FROG_TYPE;
 
 			// Set the radius based on the overall size of the frog
 			radius = (width / 2) * 0.75;
