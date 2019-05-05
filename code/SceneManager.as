@@ -12,6 +12,8 @@
 	import flash.geom.Vector3D;
 	
 	public class SceneManager extends MovieClip {
+		private var input:InputManager;
+		
 		private var stageRef:Object; // Stores a reference to the kernel's stageRef, to pass to each scene as necessary
 
 		private var entities:Vector.<Object> = new Vector.<Object>(); //entity list
@@ -21,9 +23,11 @@
 		
 		public function SceneManager(stage:Object)
 		{
+			input = new InputManager(stage);
+
 			stageRef = stage;
 			
-			current = new StartMenuScene();
+			current = new StartMenuScene(input);
 			
 			NewScene();
 		}
@@ -36,6 +40,9 @@
 		public function Update():void //Update method
 		{
 			current.Update();
+			
+			// Update input listener
+			input.Update();
 			
 			if(current.Next != null && !current.Unloading)
 			{

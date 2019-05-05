@@ -3,7 +3,6 @@
 	import flash.display.MovieClip;
 	
 	public interface IGameScene extends IScene {
-		function get Input():InputManager;
 		
 		function get Collidables():Vector.<IPhysicsCollidable>;
 		

@@ -15,22 +15,52 @@
 	
 	public class StarScene extends MovieClip implements IScene
 	{
-
+		private var entities:Vector.<Object> = new Vector.<Object>();
+		public function get Entities():Vector.<Object> { return entities; }
+		public function set Entities(value:Vector.<Object>):void { entities = value; }
+		
+		private var next:IScene;
+		public function get Next():IScene { return next; }
+		public function set Next(value:IScene):void { next = value; }
+		
+		private var unloading:Boolean = false;
+		public function get Unloading():Boolean { return unloading; }		
+		
+		private var winText:TextField = new TextField(); 
+		
+		private var input:InputManager;
+		
+		private var link:IScene;
+	
 		// constructor code
-		public function StarScene(stars:String, Link:IScene, input:InputManager) 
-		{
-			this.Link = Link;
+		public function StarScene(starCount:int, turnCount:int, link:IScene, input:InputManager) 
+		{		
+			this.link = link;
 			this.input = input;
 			
+			var totalStars:String = "*";
+
+			for (var i:int; i < starCount - 1; i++)
+			{
+				totalStars = "*  " + totalStars;
+			}
+			
+			var text = "Congratulations!\n\n" + totalStars + "\nYou won in " + turnCount + " turns.\n\nPress any key to continue!";
+					
+			winText = new TextField();
+			winText.text = text;
+		}
+			
+			
+		public function Initialise(stage:Object):void
+		{
 			var format:TextFormat = new TextFormat();
 			format.size = 12;
 			format.color = 0x000000;
 			format.font = "Verdana";
 			format.align = "center";
 			
-			winText = new TextField();
 			winText.type = "dynamic";
-			winText.text = stars;
 			winText.border = false;
 			winText.selectable = false;
 			winText.autoSize = TextFieldAutoSize.LEFT;
@@ -38,27 +68,6 @@
 			winText.embedFonts = true;
 
 			winText.setTextFormat(format);
-		}
-			
-			private var input:InputManager;
-			private var Link:IScene;
-		
-			private var winText:TextField; 
-		
-			private var entities:Vector.<Object> = new Vector.<Object>();
-			public function get Entities():Vector.<Object> { return entities; }
-			public function set Entities(value:Vector.<Object>):void { entities = value; }
-			
-			private var next:IScene;
-			public function get Next():IScene { return next; }
-			public function set Next(value:IScene):void { next = value; }
-			
-			private var unloading:Boolean = false;
-			public function get Unloading():Boolean { return unloading; }		
-			
-			
-		public function Initialise(stage:Object):void
-		{
 			
 			
 			winText.x = (stage.stageWidth / 2) - (winText.width / 2);
@@ -93,7 +102,7 @@
 		{
 			if (input.anyTapped)
 			{
-				next = Link
+				next = link
 			}
 				
 		}

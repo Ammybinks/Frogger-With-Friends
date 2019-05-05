@@ -6,6 +6,8 @@
 	//Class
 	public class StartMenuScene extends MovieClip implements IScene
 	{
+		private var input:InputManager;
+		
 		// List of objects to update every frame
 		private var entities:Vector.<Object> = new Vector.<Object>();
 		public function get Entities():Vector.<Object> { return entities; }
@@ -19,26 +21,26 @@
 		public function get Unloading():Boolean { return unloading; }
 		
 		// constructor 
-		public function StartMenuScene() 
+		public function StartMenuScene(input:InputManager) 
 		{
-			
+			this.input = input;
 		}
 		
 		public function Initialise(stage:Object):void //Initialise Method
 		{
-			var scene = new GameScene();
+			var scene = new GameScene(input);
 			
 			var CentreX = stage.stageWidth / 2;
 			
 			var StartButton:Button = new Button(100, CentreX, this, "Start Game");
-			StartButton.SceneLink = new Level3Scene();
+			StartButton.SceneLink = new Level1Scene(input);
 			entities.push(StartButton);
 			
 			var InstructionButton:Button = new Button(200, CentreX, this, "Start Game");
 			InstructionButton.SceneLink = scene;
 			entities.push(InstructionButton);
 			
-			var QuitButton:ExitButton = new ExitButton(300, CentreX, this, "Start Game");
+			var QuitButton:Button = new Button(300, CentreX, this, "Start Game");
 			entities.push(QuitButton);
 		}
 

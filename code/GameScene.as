@@ -14,7 +14,7 @@
 	public class GameScene extends MovieClip implements IGameScene {
 		// List of every entity managed by this scene
 		
-		internal var Link:IScene;
+		internal var link:IScene;
 		
 		internal var entities:Vector.<Object> = new Vector.<Object>();
 		public function get Entities():Vector.<Object> { return entities; }
@@ -28,7 +28,6 @@
 		public function get Unloading():Boolean { return unloading; }
 		
 		internal var input: InputManager;
-		public function get Input():InputManager { return input; }
 
 		// List of objects to update every frame
 		internal var updatables:Vector.<IUpdatable> = new Vector.<IUpdatable>();
@@ -89,6 +88,10 @@
 		// Reference to the goal object in the stage
 		internal var goal:Goal;
 		
+		public function GameScene(input:InputManager)
+		{
+			this.input = input;
+		}
 
 		public function Initialise(stage:Object):void //Initialise Method
 		{
@@ -242,9 +245,6 @@
 			snakeText.setTextFormat(textFormat);
 			
 			WriteDebug();
-			
-			// Update input listener
-			input.Update();
 		}
 
 		// Draws the level's grid, according to stageSize
@@ -414,7 +414,7 @@
 		{
 			gameComplete = true;
 			
-			var totalStars:String = "";
+			var starCount:int = 0;
 			
 			// Adds a star to the final string for each breakpoint in stars[] reached
 			for(var i:int = 0; i < stars.length; i++)
@@ -423,21 +423,19 @@
 				{	
 					for(var o:int = stars.length - i; o > 0; o--)
 					{
-						totalStars = "*  " + totalStars;
+						starCount++;
 					}
 					
 					break;
 				}
 			}
-			
-			var Text = "Congratulations!\n\n" + totalStars + "\nYou won in " + turnCount + " turns.\n\nPress any key to continue!";
-								
+				
 			if(hasEventListener(GameEvent.END_GAME))
 			{
 				dispatchEvent(new GameEvent(GameEvent.END_GAME));
 			}
 			
-			next = new StarScene(Text, Link, input);
+			next = new StarScene(starCount, turnCount, link, input);
 		}
 		
 		// Sets up actors array in advance of calling undo for all actors, clearing the grid and switching game state values as necessary

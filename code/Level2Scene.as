@@ -15,6 +15,11 @@ import flash.display.MovieClip; //Import Movie clip
 	
 	public class Level2Scene extends GameScene implements IGameScene 
 	{
+		public function Level2Scene(input:InputManager)
+		{
+			super(input);
+		}
+		
 		public override function Initialise(stage:Object):void //Initialise Method
 		{
 			input = new InputManager(stage);
@@ -28,7 +33,7 @@ import flash.display.MovieClip; //Import Movie clip
 			
 			stars = new <int>[3, 11, -1];
 			
-			Link = new Level3Scene;
+			link = new Level3Scene(input);
 		}
 
 		// Initialises each moving actor and places them on the stage
@@ -39,7 +44,7 @@ import flash.display.MovieClip; //Import Movie clip
 			//////
 			
 			//// Player PartyFrog
-			var playerFrog:Actor = new PlayerFrog(this, new Vector3D(3, 4, 0), Actor.GREEN_COLOUR);
+			var playerFrog:Actor = new PlayerFrog(this, input, new Vector3D(3, 4, 0), Actor.GREEN_COLOUR);
 
 			playerFrog.rotation = 180;
 			

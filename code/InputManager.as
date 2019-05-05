@@ -6,12 +6,29 @@
 	import flash.events.KeyboardEvent;
 	
 	public class InputManager {
+		var anyHeld:Boolean = false;
 		var leftHeld:Boolean = false;
 		var rightHeld:Boolean = false;
 		var upHeld:Boolean = false;
 		var downHeld:Boolean = false;
 		var undoHeld:Boolean = false;
 		var restartHeld:Boolean = false;
+		
+		var anyPressed:Boolean = false;
+		var leftPressed:Boolean = false;
+		var rightPressed:Boolean = false;
+		var upPressed:Boolean = false;
+		var downPressed:Boolean = false;
+		var undoPressed:Boolean = false;
+		var restartPressed:Boolean = false;
+		
+		var anyReleased:Boolean = false;
+		var leftReleased:Boolean = false;
+		var rightReleased:Boolean = false;
+		var upReleased:Boolean = false;
+		var downReleased:Boolean = false;
+		var undoReleased:Boolean = false;
+		var restartReleased:Boolean = false;
 		
 		var anyTapped:Boolean = false;
 		var leftTapped:Boolean = false;
@@ -20,6 +37,7 @@
 		var downTapped:Boolean = false;
 		var undoTapped:Boolean = false;
 		var restartTapped:Boolean = false;
+
 		
 		public function InputManager(stage:Object):void {
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, KeyPressed);
@@ -27,7 +45,15 @@
 		}
 
 		public function Update():void {
-			// Set all tapped values to false, to ensure they've only been active for a single frame
+			// Set all Pressed values to false, to ensure they've only been active for a single frame
+			anyPressed = false;
+			leftPressed = false;
+			rightPressed = false;
+			upPressed = false;
+			downPressed = false;
+			undoPressed = false;
+			restartPressed = false;
+			
 			anyTapped = false;
 			leftTapped = false;
 			rightTapped = false;
@@ -38,48 +64,60 @@
 		}
 		
 		private function KeyPressed(e:KeyboardEvent):void {
-			anyTapped = true;
+			anyPressed = true;
 			
 			switch (e.keyCode) {
 				case 65:
-					leftTapped = true;
+					leftPressed = true;
 					if(!leftHeld)
 					{
+						anyTapped = true;
+						leftTapped = true;
 						leftHeld = true;
 					}
 					break;
 				case 68:
-					rightTapped = true;
+					rightPressed = true;
 					if(!rightHeld)
 					{
+						anyTapped = true;
+						rightTapped = true;
 						rightHeld = true;
 					}
 					break;
 				case 87:
-					upTapped = true;
+					upPressed = true;
 					if(!upHeld)
 					{
+						anyTapped = true;
+						upTapped = true;
 						upHeld = true;
 					}
 					break;
 				case 83:
-					downTapped = true;
+					downPressed = true;
 					if(!downHeld)
 					{
+						anyTapped = true;
+						downTapped = true;
 						downHeld = true;
 					}
 					break;
 				case 90:
-					undoTapped = true;
+					undoPressed = true;
 					if(!undoHeld)
 					{
+						anyTapped = true;
+						undoTapped = true;
 						undoHeld = true;
 					}
 					break;
 				case 82:
-					restartTapped = true;
+					restartPressed = true;
 					if(!restartHeld)
 					{
+						anyTapped = true;
+						restartTapped = true;
 						restartHeld = true;
 					}
 					break;

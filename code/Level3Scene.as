@@ -12,10 +12,13 @@
 	import flash.geom.Vector3D;
 	
 	public class Level3Scene extends GameScene implements IGameScene {
+		public function Level3Scene(input:InputManager)
+		{
+			super(input);
+		}
+		
 		public override function Initialise(stage:Object):void //Initialise Method
 		{
-			input = new InputManager(stage);
-
 			stageSize = 8;
 			
 			// Initialise tile & grid values
@@ -25,7 +28,7 @@
 			
 			stars = new <int>[3, 11, -1];
 			
-			Link = new StartMenuScene;
+			link = new StartMenuScene(input);
 		}
 
 		internal override function CreateGoal(stage:Object):void
@@ -43,7 +46,7 @@
 			//////
 			
 			//// Player PartyFrog
-			var playerFrog:Actor = new PlayerFrog(this, new Vector3D(3, 3, 0), Actor.GREEN_COLOUR);
+			var playerFrog:Actor = new PlayerFrog(this, input, new Vector3D(3, 3, 0), Actor.GREEN_COLOUR);
 
 			playerFrog.rotation = 180;
 			

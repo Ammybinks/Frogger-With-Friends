@@ -94,8 +94,9 @@
 				}
 				else
 				{
+					var temp = collision.CollisionType;
 					// If the snake has collided with a frog
-					if(collision.CollisionType == (Actor.FROG_TYPE || Actor.PLAYER_TYPE))
+					if((temp == Actor.FROG_TYPE) || (temp == Actor.PLAYER_TYPE))
 					{
 						// Begin a fight between the snake and the frog
 						var fight:Fight = new Fight(this as IFighter, collision as IFighter, new Vector3D(collision.x, collision.y, 0), new Vector3D(width, height, 0));

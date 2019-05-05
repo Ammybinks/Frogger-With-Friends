@@ -17,10 +17,10 @@
 		// If the frog is currently taking inputs from the player
 		private var active:Boolean = true;
 		
-		public function PlayerFrog(scene:IGameScene, gridPosition:Vector3D, colour:String):void {
+		public function PlayerFrog(scene:IGameScene, input:InputManager, gridPosition:Vector3D, colour:String):void {
 			super(scene, gridPosition, colour);
 			
-			input = scene.Input;
+			this.input = input;
 			
 			collisionType = Actor.PLAYER_TYPE;
 

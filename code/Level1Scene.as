@@ -13,11 +13,13 @@
 	
 	public class Level1Scene extends GameScene implements IGameScene 
 	{
+		public function Level1Scene(input:InputManager)
+		{
+			super(input);
+		}
 
 		public override function Initialise(stage:Object):void //Initialise Method
 		{
-			input = new InputManager(stage);
-
 			stageSize = 7;
 			
 			// Initialise tile & grid values
@@ -27,7 +29,7 @@
 			
 			stars = new <int>[3, 11, -1];
 			
-			Link = new Level2Scene();
+			link = new Level2Scene(input);
 		}
 
 		// Initialises each moving actor and places them on the stage
@@ -38,7 +40,7 @@
 			//////
 			
 			//// Player PartyFrog
-			var playerFrog:Actor = new PlayerFrog(this, new Vector3D(3, 5, 0), Actor.GREEN_COLOUR);
+			var playerFrog:Actor = new PlayerFrog(this, input, new Vector3D(3, 5, 0), Actor.GREEN_COLOUR);
 
 			playerFrog.rotation = 180;
 			
