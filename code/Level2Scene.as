@@ -85,7 +85,92 @@ import flash.display.MovieClip; //Import Movie clip
 			stage.addChild(goal);
 		}
 		
-
+				
+		internal override function CreateWalls(stage:Object):void
+		{
+			var wall;
+			
+			
+			
+			wall = new Wall(this, new Vector3D(2,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(2,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(2,2,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,2,0));
+			stage.addChild(wall);
+			
+			
+			wall = new Wall(this, new Vector3D(0,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(0,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(0,2,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,2,0));
+			stage.addChild(wall);
+			
+			
+			wall = new Wall(this, new Vector3D(5,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(5,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(5,2,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,2,0));
+			stage.addChild(wall);
+			
+			
+			wall = new Wall(this, new Vector3D(0,4,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(0,5,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(0,6,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,4,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,5,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,6,0));
+			stage.addChild(wall);
+			wall = new Wall(this, new Vector3D(2,4,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(2,5,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(2,6,0));
+			stage.addChild(wall);
+			wall = new Wall(this, new Vector3D(4,4,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,5,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,6,0));
+			stage.addChild(wall);		
+			wall = new Wall(this, new Vector3D(5,4,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(5,5,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(5,6,0));
+			stage.addChild(wall);	
+			wall = new Wall(this, new Vector3D(6,4,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,5,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,6,0));
+			stage.addChild(wall);			
+		}
 	}
 	
 }
