@@ -32,18 +32,21 @@
 			
 			var CentreX = stage.stageWidth / 2;
 			
-			var StartButton:Button = new Button(100, CentreX, this, "Start Game");
-			StartButton.SceneLink = new Level1Scene(input);
-			entities.push(StartButton);
+			var startButton:Button = new Button(100, CentreX, this, "Start Game");
+			startButton.addEventListener(SceneChangeEvent.SCENE_CHANGE, ChangeScene);
+			startButton.SceneLink = new Level1Scene(input);
+			entities.push(startButton);
 			
-			var InstructionButton:Button = new Button(200, CentreX, this, "Select Level");
-			InstructionButton.SceneLink = new LevelSelectScene(input);
+			var instructionButton:Button = new Button(200, CentreX, this, "Select Level");
+			instructionButton.addEventListener(SceneChangeEvent.SCENE_CHANGE, ChangeScene);
+			instructionButton.SceneLink = new LevelSelectScene(input);
 			
-			entities.push(InstructionButton);
+			entities.push(instructionButton);
 			
-			var SettingsButton:Button = new Button(300, CentreX, this, "Input Settings");
-			SettingsButton.SceneLink = new SettingsScene(input);
-			entities.push(SettingsButton);
+			var settingsButton:Button = new Button(300, CentreX, this, "Input Settings");
+			settingsButton.addEventListener(SceneChangeEvent.SCENE_CHANGE, ChangeScene);
+			settingsButton.SceneLink = new SettingsScene(input);
+			entities.push(settingsButton);
 		}
 
 		public function LoadContent(stage:Object):void // Load content Method
@@ -76,6 +79,10 @@
 				
 		}
 
+		public function ChangeScene(e:SceneChangeEvent)
+		{
+			next = e.sceneLink;
+		}
 	}
 	
 }

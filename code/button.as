@@ -25,7 +25,7 @@
 
 		public function ClickEvent(e:Event)
 		{
-			parentMenu.Next = sceneLink; 
+			dispatchEvent(new SceneChangeEvent(SceneChangeEvent.SCENE_CHANGE, sceneLink));
 		}
 	}
 	
