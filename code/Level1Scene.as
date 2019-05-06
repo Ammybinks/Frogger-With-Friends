@@ -71,13 +71,65 @@
 			stage.addChild(goal);
 		}
 		
-	
 		internal override function CreateWalls(stage:Object):void
 		{
 			var wall;
 			
-			wall = new Wall(this, new Vector3D(0, 0, 0));
+			wall = new Wall(this, new Vector3D(0,3,0));
 			stage.addChild(wall);
+			wall = new Wall(this, new Vector3D(1,3,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(2,3,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,3,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(5,3,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,3,0));
+			stage.addChild(wall);
+			
+			
+			wall = new Wall(this, new Vector3D(2,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(2,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(2,2,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(4,2,0));
+			stage.addChild(wall);
+			
+			
+			wall = new Wall(this, new Vector3D(0,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(0,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(0,2,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(1,2,0));
+			stage.addChild(wall);
+			
+			
+			wall = new Wall(this, new Vector3D(5,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(5,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,0,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,1,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(5,2,0));
+			stage.addChild(wall);			
+			wall = new Wall(this, new Vector3D(6,2,0));
+			stage.addChild(wall);
+			
 		}
 	}
 	

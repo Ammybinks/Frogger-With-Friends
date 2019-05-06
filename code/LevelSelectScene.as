@@ -1,11 +1,12 @@
 ﻿package  
-	{
+{
+
 	import flash.display.MovieClip; //Import Movie clip
 	import flash.events.Event; //Import Events
 	
-	//Class
-	public class StartMenuScene extends MovieClip implements IScene
+	public class LevelSelectScene extends MovieClip implements IScene
 	{
+
 		private var input:InputManager;
 		
 		// List of objects to update every frame
@@ -20,30 +21,29 @@
 		private var unloading:Boolean = false;
 		public function get Unloading():Boolean { return unloading; }
 		
-		// constructor 
-		public function StartMenuScene(input:InputManager) 
+		public function LevelSelectScene(input:InputManager) 
 		{
+			// constructor code
 			this.input = input;
 		}
-		
+
 		public function Initialise(stage:Object):void //Initialise Method
 		{
 			var scene = new GameScene(input);
 			
 			var CentreX = stage.stageWidth / 2;
 			
-			var StartButton:Button = new Button(100, CentreX, this, "Start Game");
-			StartButton.SceneLink = new Level1Scene(input);
-			entities.push(StartButton);
+			var LevelOneButton:Button = new Button(100, CentreX, this, "Level 1");
+			LevelOneButton.SceneLink = new Level1Scene(input);
+			entities.push(LevelOneButton);
 			
-			var InstructionButton:Button = new Button(200, CentreX, this, "Select Level");
-			InstructionButton.SceneLink = new LevelSelectScene(input);
+			var LevelTwoButton:Button = new Button(200, CentreX, this, "Level 2");
+			LevelTwoButton.SceneLink = new Level2Scene(input);
+			entities.push(LevelTwoButton);
 			
-			entities.push(InstructionButton);
-			
-			var SettingsButton:Button = new Button(300, CentreX, this, "Input Settings");
-			SettingsButton.SceneLink = new SettingsScene(input);
-			entities.push(SettingsButton);
+			var LevelThreeButton:Button = new Button(300, CentreX, this, "Level 3");
+			LevelThreeButton.SceneLink = new Level3Scene(input);
+			entities.push(LevelThreeButton);
 		}
 
 		public function LoadContent(stage:Object):void // Load content Method
@@ -75,7 +75,7 @@
 			
 				
 		}
-
+	
 	}
 	
 }
