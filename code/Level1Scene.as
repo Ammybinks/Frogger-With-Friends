@@ -27,7 +27,7 @@
 			stageBounds[0] = new Vector3D((stage.stageWidth - (tileSize * stageSize)) / 2, 0, 0);
 			stageBounds[1] = new Vector3D(stageBounds[0].x + (tileSize * stageSize), stage.stageHeight, 0);
 			
-			stars = new <int>[3, 11, -1];
+			stars = new <int>[2, 10, -1];
 			
 			link = new Level2Scene(input);
 		}
@@ -72,6 +72,13 @@
 		}
 		
 	
+		internal override function CreateWalls(stage:Object):void
+		{
+			var wall;
+			
+			wall = new Wall(this, new Vector3D(0, 0, 0));
+			stage.addChild(wall);
+		}
 	}
 	
 }

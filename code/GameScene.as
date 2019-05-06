@@ -53,6 +53,7 @@
 		public function get Actors():Vector.<Vector.<IGridCollidable>> { return actors; }
 		
 		// TextFields for writing a variety of information to the screen
+		internal var reminderText:TextField;
 		internal var actorsText:TextField;
 		internal var turnsText:TextField;
 		internal var snakeText:TextField;
@@ -235,7 +236,7 @@
 				}
 			}
 			
-			// Update diagnostic information
+			/* Update diagnostic information
 			var textFormat:TextFormat = turnsText.getTextFormat();
 			turnsText.text = turnCount.toString();
 			turnsText.setTextFormat(textFormat);
@@ -244,7 +245,7 @@
 			snakeText.text = snakeCount.toString();
 			snakeText.setTextFormat(textFormat);
 			
-			WriteDebug();
+			WriteDebug();*/
 		}
 
 		// Draws the level's grid, according to stageSize
@@ -313,10 +314,23 @@
 		internal function CreateText(stage:Object):void
 		{
 			var format:TextFormat = new TextFormat();
-			format.size = 12;
+			format.size = 16;
 			format.color = 0x000000;
 			format.font = "Verdana";
 			format.align = "center";
+			
+			reminderText = new TextField();
+			reminderText.type = "dynamic";
+			reminderText.text = "Welcome to Frogger With Friends!\n\nThe goal of the game is to\n defeat every enemy before \nmoving to the exit.\n\nWhenever a snake and a frog\n collide, they fight!\n\nThe winner is determined\nby their colours:\n\nGreen beats Blue\nBlue beats Red\nRed beats Green\n\nBoth fighters die on a tie,\nand if any of your party die\nyou have to restart!";
+			reminderText.border = false;
+			reminderText.selectable = false;
+			reminderText.autoSize = TextFieldAutoSize.LEFT;
+			reminderText.antiAliasType = AntiAliasType.ADVANCED;
+			reminderText.embedFonts = true;
+
+			reminderText.setTextFormat(format);
+			entities.push(reminderText);
+			stage.addChild(reminderText);
 			
 			
 			actorsText = new TextField();

@@ -23,7 +23,7 @@
 		
 		public function SceneManager(stage:Object)
 		{
-			input = new InputManager(stage);
+			input = new InputManager(stage, this);
 
 			stageRef = stage;
 			

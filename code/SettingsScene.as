@@ -1,11 +1,8 @@
-﻿package  
-	{
+﻿package  {
 	import flash.display.MovieClip; //Import Movie clip
 	import flash.events.Event; //Import Events
 	
-	//Class
-	public class StartMenuScene extends MovieClip implements IScene
-	{
+	public class SettingsScene extends MovieClip implements IScene {
 		private var input:InputManager;
 		
 		// List of objects to update every frame
@@ -21,11 +18,11 @@
 		public function get Unloading():Boolean { return unloading; }
 		
 		// constructor 
-		public function StartMenuScene(input:InputManager) 
+		public function SettingsScene(input:InputManager) 
 		{
 			this.input = input;
 		}
-		
+
 		public function Initialise(stage:Object):void //Initialise Method
 		{
 			var scene = new GameScene(input);
@@ -37,12 +34,11 @@
 			entities.push(StartButton);
 			
 			var InstructionButton:Button = new Button(200, CentreX, this, "Level Select");
-			InstructionButton.SceneLink = scene;
 			entities.push(InstructionButton);
 			
-			var SettingsButton:Button = new Button(300, CentreX, this, "Input Settings");
-			SettingsButton.SceneLink = new SettingsScene(input);
-			entities.push(SettingsButton);
+			var QuitButton:Button = new Button(500, CentreX, this, "Back");
+			QuitButton.SceneLink = new StartMenuScene(input);
+			entities.push(QuitButton);
 		}
 
 		public function LoadContent(stage:Object):void // Load content Method

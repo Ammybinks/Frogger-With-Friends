@@ -39,7 +39,7 @@
 		var restartTapped:Boolean = false;
 
 		
-		public function InputManager(stage:Object):void {
+		public function InputManager(stage:Object, caller:Object):void {
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, KeyPressed);
 			stage.addEventListener(KeyboardEvent.KEY_UP, KeyReleased);
 		}
@@ -89,6 +89,7 @@
 					upPressed = true;
 					if(!upHeld)
 					{
+						trace("Tapped!");
 						anyTapped = true;
 						upTapped = true;
 						upHeld = true;
@@ -125,6 +126,7 @@
 		}
 		
 		private function KeyReleased(e:KeyboardEvent):void {
+			trace("Released!");
 			switch (e.keyCode) {
 				case 65:
 					leftHeld = false;

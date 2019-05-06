@@ -22,8 +22,6 @@ import flash.display.MovieClip; //Import Movie clip
 		
 		public override function Initialise(stage:Object):void //Initialise Method
 		{
-			input = new InputManager(stage);
-
 			stageSize = 7;
 			
 			// Initialise tile & grid values
@@ -31,7 +29,7 @@ import flash.display.MovieClip; //Import Movie clip
 			stageBounds[0] = new Vector3D((stage.stageWidth - (tileSize * stageSize)) / 2, 0, 0);
 			stageBounds[1] = new Vector3D(stageBounds[0].x + (tileSize * stageSize), stage.stageHeight, 0);
 			
-			stars = new <int>[3, 11, -1];
+			stars = new <int>[3, 9, -1];
 			
 			link = new Level3Scene(input);
 		}
@@ -71,7 +69,7 @@ import flash.display.MovieClip; //Import Movie clip
 
 			snake.Path = new Vector.<Vector3D>(2);
 			snake.Path[0] = new Vector3D(0, 3);
-			snake.Path[1] = new Vector3D(7, 3);
+			snake.Path[1] = new Vector3D(6, 3);
 
 			entities.push(snake);
 			stage.addChild(snake);

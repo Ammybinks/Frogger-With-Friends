@@ -7,25 +7,25 @@
 	public class Button extends MovieClip
 	{
 		//data members
-		var clicked = false;
-		var SceneLink:Object;
-		var ParentMenu:Object;
+		private var sceneLink:IScene;
+		public function set SceneLink(value:IScene) { sceneLink = value; }
+		
+		private var parentMenu:IScene;
 			
 		// constructor code
-		public function Button(pY:int, pX:int, pMenu:Object, pText:String) // Constructor passing y, x, menu, text parameters
+		public function Button(y:int, x:int, parentMenu:IScene, text:String) // Constructor passing y, x, menu, text parameters
 		{
-			y = pY;
-			x = pX;
-			ParentMenu = pMenu;
+			this.y = y;
+			this.x = x;
+			this.parentMenu = parentMenu;
+			this.bText.text = text;
 			
 			addEventListener(MouseEvent.CLICK,ClickEvent);
-			this.bText.text = pText;
-			
 		}
 
 		public function ClickEvent(e:Event)
 		{
-			ParentMenu.Next = SceneLink; 
+			parentMenu.Next = sceneLink; 
 		}
 	}
 	
