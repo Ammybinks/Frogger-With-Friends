@@ -5,7 +5,7 @@
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
-	public class PlayerFrog extends Frog implements IPhysicsCollidable {
+	public class PlayerFrog extends Frog {
 		private var input:InputManager;
 		
 		// Stores information to allow the frog to turn smoothly during the physics based section
@@ -71,14 +71,14 @@
 		private function GridMove()
 		{
 			// If any key is pressed and the frog is listening for inputs
-			if((input.leftHeld || input.rightHeld || input.upHeld || input.downHeld) && active)
+			if((input.LeftHeld || input.RightHeld || input.UpHeld || input.DownHeld) && active)
 			{
 				var destination:Vector3D;
 
 				AddPast();
 				
 				// Moves the frog along the grid
-				if(input.leftHeld)
+				if(input.LeftHeld)
 				{
 					// If new position is inside the stage bounds
 					if(gridPosition.x - 1 >= 0)
@@ -92,7 +92,7 @@
 					
 					rotation = 90;
 				}
-				else if(input.rightHeld)
+				else if(input.RightHeld)
 				{
 					// If new position is inside the stage bounds
 					if(gridPosition.x + 1 < scene.StageSize)
@@ -106,7 +106,7 @@
 					
 					rotation = 270;
 				}
-				else if(input.upHeld)
+				else if(input.UpHeld)
 				{
 					// If new position is inside the stage bounds
 					if(gridPosition.y - 1 >= 0)
@@ -120,7 +120,7 @@
 					
 					rotation = 180;
 				}
-				else if(input.downHeld)
+				else if(input.DownHeld)
 				{
 					// If new position is inside the stage bounds
 					if(gridPosition.y + 1 < scene.StageSize)
@@ -193,22 +193,22 @@
 			}			
 			
 			// Accelerate the frog in the direction of the key held, adding weight to facing to turn the frog in that direction
-			if(input.leftHeld)
+			if(input.LeftHeld)
 			{
 				A.x -= physicsSpeed;
 				facing.x -= physicsSpeed;
 			}
-			if(input.rightHeld)
+			if(input.RightHeld)
 			{
 				A.x += physicsSpeed;
 				facing.x += physicsSpeed;
 			}
-			if(input.upHeld)
+			if(input.UpHeld)
 			{
 				A.y -= physicsSpeed;
 				facing.y -= physicsSpeed;
 			}
-			if(input.downHeld)
+			if(input.DownHeld)
 			{
 				A.y += physicsSpeed;
 				facing.y += physicsSpeed;

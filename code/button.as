@@ -1,31 +1,21 @@
 ﻿package  
 {
-	import flash.events.Event; //Import Events
-	import flash.events.MouseEvent; //Import mouse event
-	import flash.display.MovieClip; //Import Movie clip	
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.display.MovieClip;
 	
 	public class Button extends MovieClip
 	{
-		//data members
-		private var sceneLink:IScene;
-		public function set SceneLink(value:IScene) { sceneLink = value; }
-		
-		private var parentMenu:IScene;
-			
-		// constructor code
-		public function Button(y:int, x:int, parentMenu:IScene, text:String) // Constructor passing y, x, menu, text parameters
+		public function Button(x:int, y:int)
 		{
-			this.y = y;
 			this.x = x;
-			this.parentMenu = parentMenu;
-			this.bText.text = text;
+			this.y = y;
 			
-			addEventListener(MouseEvent.CLICK,ClickEvent);
+			addEventListener(MouseEvent.CLICK, Activate);
 		}
 
-		public function ClickEvent(e:Event)
+		public function Activate(e:Event)
 		{
-			dispatchEvent(new SceneChangeEvent(SceneChangeEvent.SCENE_CHANGE, sceneLink));
 		}
 	}
 	

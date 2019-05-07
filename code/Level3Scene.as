@@ -1,5 +1,5 @@
 ﻿package  {
-	import flash.display.MovieClip; //Import Movie clip
+	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.KeyboardEvent;
@@ -17,8 +17,13 @@
 			super(input);
 		}
 		
-		public override function Initialise(stage:Object):void //Initialise Method
+		// Initialise all values and objects to be added to the screen
+		public override function Initialise(stage:Object):void
 		{
+			// Return the program's focus to the stage, if it wasn't there already.
+			// Solves problems with inputs not registering after a button has been pressed
+			stage.focus = stage;
+			
 			stageSize = 8;
 			
 			// Initialise tile & grid values
@@ -26,16 +31,19 @@
 			stageBounds[0] = new Vector3D((stage.stageWidth - (tileSize * stageSize)) / 2, 0, 0);
 			stageBounds[1] = new Vector3D(stageBounds[0].x + (tileSize * stageSize), stage.stageHeight, 0);
 			
+			// Set amount of stars the player gets for each number of moves
 			stars = new <int>[3, 11, -1];
 			
+			// Set link to return to the main menu
 			link = new StartMenuScene(input);
 		}
 
+		// Places the goal on the stage in a certain position
 		internal override function CreateGoal(stage:Object):void
 		{
 			goal = new Goal(this, new Vector3D(4, 1, 0));
 
-			stage.addChild(goal);
+			entities.push(goal);
 		}
 		
 		// Initialises each moving actor and places them on the stage

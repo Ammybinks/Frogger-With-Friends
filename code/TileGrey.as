@@ -1,10 +1,7 @@
 ﻿package  {
+	import flash.display.MovieClip;
 	
-	public class TileGrey extends LevelObject {
-
-		public function TileGrey(scene:IGameScene) {
-			super(scene);
-		}
+	public class TileGrey extends MovieClip {
 
 	}
 	

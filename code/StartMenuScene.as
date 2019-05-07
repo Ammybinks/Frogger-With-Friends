@@ -1,87 +1,86 @@
 ﻿package  
 	{
-	import flash.display.MovieClip; //Import Movie clip
-	import flash.events.Event; //Import Events
+	import flash.display.MovieClip;
+	import flash.events.Event;
+	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
+	import flash.text.AntiAliasType;
+	import flash.text.TextFormat;
 	
-	//Class
-	public class StartMenuScene extends MovieClip implements IScene
+	public class StartMenuScene extends Scene
 	{
-		private var input:InputManager;
-		
-		// List of objects to update every frame
-		private var entities:Vector.<Object> = new Vector.<Object>();
-		public function get Entities():Vector.<Object> { return entities; }
-		public function set Entities(value:Vector.<Object>):void { entities = value; }
-		
-		private var next:IScene;
-		public function get Next():IScene { return next; }
-		public function set Next(value:IScene):void { next = value; }
-		
-		private var unloading:Boolean = false;
-		public function get Unloading():Boolean { return unloading; }
-		
-		// constructor 
 		public function StartMenuScene(input:InputManager) 
 		{
-			this.input = input;
+			super(input);
 		}
 		
-		public function Initialise(stage:Object):void //Initialise Method
+		// Initialise all values and objects to be added to the screen
+		public override function Initialise(stage:Object):void
 		{
-			var scene = new GameScene(input);
+			// Return the program's focus to the stage, if it wasn't there already.
+			// Solves problems with inputs not registering after a button has been pressed
+			stage.focus = stage;
 			
 			var CentreX = stage.stageWidth / 2;
 			
-			var startButton:Button = new Button(100, CentreX, this, "Start Game");
+			//// Create all text to write to screen
+			
+			var format:TextFormat = new TextFormat();
+			format.size = 100;
+			format.color = 0x000000;
+			format.font = "Verdana";
+			format.align = "center";
+			
+			var text = new TextField();
+			text.type = "dynamic";
+			text.text = "Frogger With Friends!";
+			text.border = false;
+			text.selectable = false;
+			text.autoSize = TextFieldAutoSize.LEFT;
+			text.antiAliasType = AntiAliasType.ADVANCED;
+			text.embedFonts = true;
+			
+			text.setTextFormat(format);
+			
+			text.x = CentreX - text.width / 2;
+			text.y = 85;
+
+			entities.push(text);
+			
+			format.size = 30;
+			
+			text = new TextField();
+			text.type = "dynamic";
+			text.text = "A colour-matching puzzle game\nby Nye Blythe, Mariana Roque, Attila Gyor and Kacper Sliwinski";
+			text.border = false;
+			text.selectable = false;
+			text.autoSize = TextFieldAutoSize.LEFT;
+			text.antiAliasType = AntiAliasType.ADVANCED;
+			text.embedFonts = true;
+			
+			text.setTextFormat(format);
+			
+			text.x = CentreX - text.width / 2;
+			text.y = 200;
+
+			entities.push(text);
+			
+			//// Create all buttons and add them to the scene
+			
+			var startButton:SceneButton = new SceneButton(CentreX, 400, "Start Game", new Level1Scene(input));
+			// Add event listener to change the scene when the button has been pressed
 			startButton.addEventListener(SceneChangeEvent.SCENE_CHANGE, ChangeScene);
-			startButton.SceneLink = new Level1Scene(input);
 			entities.push(startButton);
 			
-			var instructionButton:Button = new Button(200, CentreX, this, "Select Level");
+			var instructionButton:SceneButton = new SceneButton(CentreX, 500, "Select Level", new LevelSelectScene(input));
+			// Add event listener to change the scene when the button has been pressed
 			instructionButton.addEventListener(SceneChangeEvent.SCENE_CHANGE, ChangeScene);
-			instructionButton.SceneLink = new LevelSelectScene(input);
-			
 			entities.push(instructionButton);
 			
-			var settingsButton:Button = new Button(300, CentreX, this, "Input Settings");
+			var settingsButton:SceneButton = new SceneButton(CentreX, 600, "Input Settings", new SettingsScene(input, stage));
+			// Add event listener to change the scene when the button has been pressed
 			settingsButton.addEventListener(SceneChangeEvent.SCENE_CHANGE, ChangeScene);
-			settingsButton.SceneLink = new SettingsScene(input);
 			entities.push(settingsButton);
-		}
-
-		public function LoadContent(stage:Object):void // Load content Method
-		{
-			for(var i:int = 0; i < entities.length; i++)
-			{
-				stage.addChild(entities[i]);
-			}
-		}
-		
-		public function UnloadContent(stage:Object):IScene//Unload content method
-		{
-			unloading = true;
-
-			Next.Entities = entities;
-			
-			for(var i:int = 0; i < entities.length; i++)
-			{
-				stage.removeChild(entities[i]);
-			}
-			
-			entities.length = 0;
-			
-			return next;
-		}
-		
-		public function Update():void //Update method
-		{
-			
-				
-		}
-
-		public function ChangeScene(e:SceneChangeEvent)
-		{
-			next = e.sceneLink;
 		}
 	}
 	

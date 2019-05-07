@@ -7,8 +7,6 @@
 		
 		function get GridPosition():Vector3D;
 		
-		function get Radius():Number;
-
 		function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void;
 	}
 	

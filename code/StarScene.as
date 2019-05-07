@@ -13,31 +13,22 @@
 	import flash.text.TextFormat;
 	import flash.geom.Vector3D;
 	
-	public class StarScene extends MovieClip implements IScene
+	public class StarScene extends Scene
 	{
-		private var entities:Vector.<Object> = new Vector.<Object>();
-		public function get Entities():Vector.<Object> { return entities; }
-		public function set Entities(value:Vector.<Object>):void { entities = value; }
+		// Stores the complete string to display during the scene
+		private var winText:String; 
 		
-		private var next:IScene;
-		public function get Next():IScene { return next; }
-		public function set Next(value:IScene):void { next = value; }
-		
-		private var unloading:Boolean = false;
-		public function get Unloading():Boolean { return unloading; }		
-		
-		private var winText:TextField = new TextField(); 
-		
-		private var input:InputManager;
-		
+		// Linked scene passed from the previous level, determines what scene to switch to after this one is complete
 		private var link:IScene;
 	
 		// constructor code
 		public function StarScene(starCount:int, turnCount:int, link:IScene, input:InputManager) 
 		{		
-			this.link = link;
-			this.input = input;
+			super(input)
 			
+			this.link = link;
+
+			// Determine how many stars to add to the string
 			var totalStars:String = "*";
 
 			for (var i:int; i < starCount - 1; i++)
@@ -45,66 +36,45 @@
 				totalStars = "*  " + totalStars;
 			}
 			
-			var text = "Congratulations!\n\n" + totalStars + "\nYou won in " + turnCount + " turns.\n\nPress any key to continue!";
-					
-			winText = new TextField();
-			winText.text = text;
+			// Create final string to be displayed
+			winText = "Congratulations!\n\n" + totalStars + "\nYou won in " + turnCount + " turns.\n\nPress any key to continue!";
 		}
 			
-			
-		public function Initialise(stage:Object):void
+		// Initialise all values and objects to be added to the screen
+		public override function Initialise(stage:Object):void
 		{
+			// Initialise text field to print text to screen
+			
 			var format:TextFormat = new TextFormat();
-			format.size = 12;
+			format.size = 40;
 			format.color = 0x000000;
 			format.font = "Verdana";
 			format.align = "center";
 			
-			winText.type = "dynamic";
-			winText.border = false;
-			winText.selectable = false;
-			winText.autoSize = TextFieldAutoSize.LEFT;
-			winText.antiAliasType = AntiAliasType.ADVANCED;
-			winText.embedFonts = true;
+			var text = new TextField();
+			text.text = winText;
+			text.type = "dynamic";
+			text.border = false;
+			text.selectable = false;
+			text.autoSize = TextFieldAutoSize.LEFT;
+			text.antiAliasType = AntiAliasType.ADVANCED;
+			text.embedFonts = true;
 
-			winText.setTextFormat(format);
+			text.setTextFormat(format);
 			
-			
-			winText.x = (stage.stageWidth / 2) - (winText.width / 2);
-			winText.y = (stage.stageHeight / 2) - (winText.height / 2);
-			entities.push(winText);
-			
+			text.x = (stage.stageWidth / 2) - (text.width / 2);
+			text.y = (stage.stageHeight / 2) - (text.height / 2);
+			entities.push(text);
 		}
 		
-		public function LoadContent (stage:Object):void
+		public override function Update():void
 		{
-			stage.addChild(winText);
-			
-		}
-		
-		public function UnloadContent(stage:Object):IScene//Unload content method
-		{
-			unloading = true;
-
-			Next.Entities = entities;
-			
-			for(var i:int = 0; i < entities.length; i++)
+			// If the user has pressed any key
+			if (input.AnyTapped)
 			{
-				stage.removeChild(entities[i]);
-			}
-			
-			entities.length = 0;
-			
-			return next;
-		}
-		
-		public function Update():void //Update method
-		{
-			if (input.anyTapped)
-			{
+				// Switch to the next scene
 				next = link
-			}
-				
+			}	
 		}
 	}
 	

@@ -9,8 +9,6 @@
 		function get y():Number;
 		function set y(value:Number):void;
 		
-		function get Radius():Number;
-
 		function get IsTrigger():Boolean;
 		function get CollisionType():String;
 		

@@ -12,13 +12,14 @@
 	import flash.geom.Vector3D;
 	
 	public class SceneManager extends MovieClip {
+		// The global input manager, which is passed to each scene
 		private var input:InputManager;
 		
 		private var stageRef:Object; // Stores a reference to the kernel's stageRef, to pass to each scene as necessary
 
 		private var entities:Vector.<Object> = new Vector.<Object>(); //entity list
 		
-		private var current:IScene = null; //Current scene
+		private var current:IScene = null; // Scene currently being used
 		public function set Current(value:IScene):void { current = value }
 		
 		public function SceneManager(stage:Object)
@@ -32,42 +33,41 @@
 			NewScene();
 		}
 			
-		private function StartGame(e:Event) //Start game Method
-		{
-
-		}
-		
-		public function Update():void //Update method
+		public function Update():void
 		{
 			current.Update();
 			
 			// Update input listener
 			input.Update();
 			
+			// If scene has changed
 			if(current.Next != null && !current.Unloading)
 			{
+				// Begin unloading content and switching scenes
 				UnloadContent();
 			}
 		}
 			
-		public function NewScene():void //New scene Method
+		// Calls both functions required to initialise a new scene in order
+		public function NewScene():void
 		{
-			Initialise(); //Call Initialise Method
-			LoadContent(); //Call Loadcontent Method
+			Initialise();
+			LoadContent();
 		}
 			
-		private function Initialise():void //Initialise Method
+		private function Initialise():void
 		{
 			current.Entities = entities;
 			current.Initialise(stageRef);
 		}
 
-		private function LoadContent():void //Load content method
+		private function LoadContent():void
 		{
 			current.LoadContent(stageRef);
 		}
 		
-		private function UnloadContent():void //Unload content method
+		// Unloads all content from the current scene before initialising the new one
+		private function UnloadContent():void
 		{
 			current = current.UnloadContent(stageRef);
 				

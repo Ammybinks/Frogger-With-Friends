@@ -1,5 +1,5 @@
 ﻿package  {
-	import flash.display.MovieClip; //Import Movie clip
+	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.KeyboardEvent;
@@ -11,24 +11,10 @@
 	import flash.text.TextFormat;
 	import flash.geom.Vector3D;
 	
-	public class GameScene extends MovieClip implements IGameScene {
-		// List of every entity managed by this scene
-		
+	public class GameScene extends Scene implements IGameScene {
+		// The scene this one is linked to, and switch to after StarScene
 		internal var link:IScene;
 		
-		internal var entities:Vector.<Object> = new Vector.<Object>();
-		public function get Entities():Vector.<Object> { return entities; }
-		public function set Entities(value:Vector.<Object>):void { entities = value; }
-		
-		internal var next:IScene;
-		public function get Next():IScene { return next; }
-		public function set Next(value:IScene):void { next = value; }
-		
-		internal var unloading:Boolean = false;
-		public function get Unloading():Boolean { return unloading; }
-		
-		internal var input: InputManager;
-
 		// List of objects to update every frame
 		internal var updatables:Vector.<IUpdatable> = new Vector.<IUpdatable>();
 		
@@ -91,14 +77,19 @@
 		
 		public function GameScene(input:InputManager)
 		{
-			this.input = input;
+			super(input);
 		}
 
-		public function Initialise(stage:Object):void //Initialise Method
+		// Initialise all values and objects to be added to the screen
+		public override function Initialise(stage:Object):void
 		{
+			// Return the program's focus to the stage, if it wasn't there already.
+			// Solves problems with inputs not registering after a button has been pressed
+			stage.focus = stage;
 		}
 
-		public function LoadContent(stage:Object):void // Load content Method
+		// Place every entity on the stage
+		public override function LoadContent(stage:Object):void
 		{
 			CreateGrid(stage);
 			
@@ -112,6 +103,9 @@
 
 			CreateText(stage);
 			
+			CreateButtons(stage);
+			
+			// Iterate over every entity in the scene, adding it to the stage and any other lists if necessary
 			for (var i:int = 0; i < entities.length; i++)
 			{
 				if(entities[i] is IUpdatable)
@@ -122,10 +116,13 @@
 				{
 					collidables.push(entities[i]);
 				}
+				
+				stage.addChild(entities[i]);
 			}
 		}
 		
-		public function UnloadContent(stage:Object):IScene //Unload content method
+		// Removes every entity from the stage to prepare for the next scene to load
+		public override function UnloadContent(stage:Object):IScene
 		{
 			unloading = true;
 
@@ -137,13 +134,13 @@
 			}
 			
 			entities.length = 0;
-			
+			updatables.length = 0;
 			collidables.length = 0;
 			
 			return next;
 		}
 		
-		public function Update(): void
+		public override function Update(): void
 		{
 			// If puzzle has been solved
 			if(solved)
@@ -200,7 +197,7 @@
 			// While turnStep is 0, the game is waiting for player input and no other actions are currently being taken
 			else if(turnCount > 0)
 			{
-				if (input.undoTapped && !gameComplete)
+				if (input.UndoTapped && !gameComplete)
 				{
 					UndoSetup();
 					
@@ -211,7 +208,7 @@
 					
 					turnCount--;
 				}
-				else if (input.restartTapped)
+				else if (input.RestartTapped)
 				{
 					UndoSetup();
 					
@@ -268,7 +265,7 @@
 		// Creates a grey tile in a position according to its column and row on the grid
 		internal function CreateTile(stage:Object, pCol: int, pRow: int): void
 		{
-			var tile: MovieClip = new TileGrey(this);
+			var tile:MovieClip = new TileGrey();
 
 			tile.x = (pCol * tileSize) + (tileSize / 2);
 			tile.x += stageBounds[0].x;
@@ -277,7 +274,7 @@
 			tile.width = tileSize;
 			tile.height = tileSize;
 
-			stage.addChild(tile);
+			entities.push(tile);
 		}
 		
 		// Creates a new two dimensional array and places it inside actors, run for the first time when the program starts and whenever undo is used to reset the grid
@@ -296,6 +293,7 @@
 			}
 		}
 
+		// Places the goal on the stage in a certain position
 		internal function CreateGoal(stage:Object):void
 		{
 		}
@@ -305,6 +303,7 @@
 		{
 		}
 		
+		// Creates all the walls for the level, including individiual walls for grid collisions and wall segments for physics collisions
 		internal function CreateWalls(stage:Object): void
 		{
 
@@ -330,7 +329,6 @@
 
 			reminderText.setTextFormat(format);
 			entities.push(reminderText);
-			stage.addChild(reminderText);
 			
 			
 			actorsText = new TextField();
@@ -344,7 +342,6 @@
 
 			actorsText.setTextFormat(format);
 			entities.push(actorsText);
-			stage.addChild(actorsText);
 			
 			
 			turnsText = new TextField();
@@ -359,7 +356,6 @@
 
 			turnsText.setTextFormat(format);
 			entities.push(turnsText);
-			stage.addChild(turnsText);
 			
 			
 			snakeText = new TextField();
@@ -375,11 +371,20 @@
 
 			snakeText.setTextFormat(format);
 			entities.push(snakeText);
-			stage.addChild(snakeText);
 
 			format.size = 32;
 			
 		
+		}
+		
+		// Creates and places all buttons on the stage
+		internal function CreateButtons(stage:Object):void
+		{
+			var levelThreeButton:SceneButton = new SceneButton(0, 0, "Exit", new StartMenuScene(input));
+			levelThreeButton.x = 100;
+			levelThreeButton.y = stage.stageHeight - 40;
+			levelThreeButton.addEventListener(SceneChangeEvent.SCENE_CHANGE, ChangeScene);
+			entities.push(levelThreeButton);
 		}
 		
 		// Removes the given actor from the grid and places them at newPosition on the actors grid
@@ -449,6 +454,7 @@
 				dispatchEvent(new GameEvent(GameEvent.END_GAME));
 			}
 			
+			// Switch to the post level scene
 			next = new StarScene(starCount, turnCount, link, input);
 		}
 		

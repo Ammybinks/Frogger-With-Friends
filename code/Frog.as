@@ -6,7 +6,7 @@
 	import flash.utils.Timer;
 	
 	// PlayerFrog is the unique class used by the primary player token, containing behaviour to move the frog according to input, rather than any other entities or paths
-	public class Frog extends Actor implements IPhysicsBody, INext {
+	public class Frog extends Actor implements IPhysicsBody, INext, IPhysicsCollidable {
 		internal var physicsBody:PhysicsManager;
 		
 		internal var collider:CircleCollider;
@@ -27,9 +27,6 @@
 		
 		internal var friction:Number = 0.8;
 		public function get Friction():Number { return friction }
-		
-		internal var radius:Number;
-		public function get Radius():Number { return radius }
 		
 		// Trigger objects will collide with others, but won't create pushback force, meaning they can be moved through freely
 		internal var isTrigger:Boolean = false;
@@ -55,11 +52,8 @@
 			
 			collisionType = FROG_TYPE;
 
-			// Set the radius based on the overall size of the frog
-			radius = (width / 2) * 0.75;
-			
 			physicsBody = new PhysicsManager(this);
-			collider = new CircleCollider(this, scene.StageBounds);
+			collider = new CircleCollider(this, (width / 2) * 0.75, scene.StageBounds);
 			
 			turnTimer.addEventListener(TimerEvent.TIMER, TakeTurn);
 		}

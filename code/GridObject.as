@@ -2,14 +2,16 @@
 	import flash.display.MovieClip;
 	import flash.geom.Vector3D;
 	
-	public class GridObject extends LevelObject {
+	public class GridObject extends MovieClip {
+		internal var scene:IGameScene;
+		
 		// The current position on the puzzle grid
 		internal var gridPosition:Vector3D;
 		public function get GridPosition():Vector3D { return gridPosition }
 		public function set GridPosition(value:Vector3D):void { gridPosition = value }
 		
 		public function GridObject(scene:IGameScene, gridPosition:Vector3D) {
-			super(scene);
+			this.scene = scene;
 			
 			this.gridPosition = gridPosition;
 			

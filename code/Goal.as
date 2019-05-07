@@ -6,9 +6,6 @@
 		private var collider:CircleCollider;
 		public function get Collider():ICollider { return collider };
 		
-		private var radius:Number;
-		public function get Radius():Number { return radius }
-		
 		// Trigger objects will collide with others, but won't create pushback force, meaning they can be moved through freely
 		private var isTrigger:Boolean = true;
 		public function get IsTrigger():Boolean { return isTrigger }
@@ -20,9 +17,9 @@
 		public function Goal(scene:IGameScene, gridPosition:Vector3D) {
 			super(scene, gridPosition);
 
-			radius = (width / 2) * 0.1;
+			var radius = (width / 2) * 0.1;
 			
-			collider = new CircleCollider(this, new <Vector3D>[new Vector3D(x - radius, y - radius, 0), new Vector3D(x + radius, y + radius, 0)]);
+			collider = new CircleCollider(this, radius, new <Vector3D>[new Vector3D(x - radius, y - radius, 0), new Vector3D(x + radius, y + radius, 0)]);
 			
 			// Prevent the image from constantly animating between frames
 			stop();
